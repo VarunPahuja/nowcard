@@ -312,7 +312,7 @@ console.log("userId:", userId);
     font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif"
     font-size="12"
     fill="${t.subtext}"
-  ><tspan fill="${t.subtext}">Project: </tspan><tspan fill="${t.text}" font-weight="500">${escapeXml(truncate(userData.project, 36))}</tspan></text>
+  ><tspan fill="${t.subtext}">Project: </tspan><tspan fill="${t.text}" font-weight="500">${escapeXml(truncate(String(userData.project), 36))}</tspan></text>
 
   ${!hide.includes("vibe") ? `<!-- Vibe line -->
   <text
@@ -322,7 +322,7 @@ console.log("userId:", userId);
     font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif"
     font-size="12"
     fill="${t.subtext}"
-  ><tspan fill="${t.subtext}">Vibe: </tspan><tspan fill="${t.text}" font-weight="500">${escapeXml(truncate(userData.vibe, 40))}</tspan></text>` : ""}
+  ><tspan fill="${t.subtext}">Vibe: </tspan><tspan fill="${t.text}" font-weight="500">${escapeXml(truncate(String(userData.vibe), 40))}</tspan></text>` : ""}
 
   <!-- Open to Work badge border -->
   <rect
