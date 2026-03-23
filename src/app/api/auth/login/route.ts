@@ -1,7 +1,10 @@
 import { auth } from "@clerk/nextjs/server";
 
 const client_id = process.env.SPOTIFY_CLIENT_ID!;
-const SPOTIFY_REDIRECT_URI = "http://127.0.0.1:3000/api/auth/callback";
+const SPOTIFY_REDIRECT_URI =
+  process.env.NODE_ENV === "production"
+    ? "https://nowcard.vercel.app/api/auth/callback"
+    : "http://127.0.0.1:3000/api/auth/callback";
 
 export async function GET(req: Request) {
   const { userId } = await auth();
