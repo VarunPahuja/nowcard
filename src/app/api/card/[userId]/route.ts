@@ -30,8 +30,16 @@ async function getNowPlaying(refresh_token: string): Promise<Song> {
       refresh_token,
     }),
   });
-
   const tokenData = await tokenRes.json();
+  if (!tokenData.access_token) {
+    console.error("Spotify token failed:", tokenData);
+    return {
+      title: "Spotify not connected",
+      artist: "",
+      albumImage: null,
+      isPlaying: false,
+    };
+  }
   const access_token: string = tokenData.access_token;
 
   const res = await fetch(NOW_PLAYING_ENDPOINT, {
@@ -71,8 +79,17 @@ async function getNowPlaying(refresh_token: string): Promise<Song> {
       lastPlayed: `${diffMins} mins ago`,
     };
   }
-
-  const song = await res.json();
+  let song;
+  try {
+    song = await res.json();
+  } catch {
+    return {
+      title: "Error fetching song",
+      artist: "",
+      albumImage: null,
+      isPlaying: false,
+    };
+  }
 
   return {
     title: song.item.name,
@@ -118,8 +135,15 @@ export async function GET(
   const accent = searchParams.get("accent") || "green";
   const hide = searchParams.get("hide") || "";
 
-  const clerk = await clerkClient();
-  const user = await clerk.users.getUser(userId);
+  let user;
+
+  try {
+    const clerk = await clerkClient();
+    user = await clerk.users.getUser(userId);
+  } catch (err) {
+    console.error("Clerk user fetch failed:", err);
+    return new NextResponse("Invalid user", { status: 400 });
+  }
 
   const meta = user.unsafeMetadata as any;
   const refresh_token: string | undefined = meta.spotifyRefreshToken;
