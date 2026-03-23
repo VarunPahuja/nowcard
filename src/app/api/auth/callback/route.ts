@@ -1,6 +1,9 @@
 const client_id = process.env.SPOTIFY_CLIENT_ID!;
 const client_secret = process.env.SPOTIFY_CLIENT_SECRET!;
-const redirect_uri = "http://127.0.0.1:3000/api/auth/callback";
+const redirect_uri =
+  process.env.NODE_ENV === "production"
+    ? "https://nowcard.vercel.app/api/auth/callback"
+    : "http://127.0.0.1:3000/api/auth/callback"
 
 export async function GET(req: Request) {
   const { searchParams } = new URL(req.url);
