@@ -6,7 +6,10 @@ const SPOTIFY_REDIRECT_URI =
   process.env.NODE_ENV === "production"
     ? "https://nowcard.vercel.app/api/auth/callback"
     : "http://127.0.0.1:3000/api/auth/callback";
-const ONBOARDING_REDIRECT_URL = "http://localhost:3000/onboarding";
+const ONBOARDING_REDIRECT_URL =
+  process.env.NODE_ENV === "production"
+    ? "https://nowcard.vercel.app/onboarding"
+    : "http://localhost:3000/onboarding";
 
 export async function GET(req: Request) {
   const requestUrl = new URL(req.url);
