@@ -126,10 +126,12 @@ function truncate(str: string, max: number): string {
   return str.length > max ? str.slice(0, max - 1) + "…" : str;
 }
 
+import { NextRequest } from "next/server";
+
 export async function GET(
-  req: Request,
-  { params }: { params: { userId: string } }
-) {
+  req: NextRequest,
+  { params }: { params: Promise<{ userId: string }> }
+){
     
 const { userId } = await params;
 console.log("userId:", userId);
