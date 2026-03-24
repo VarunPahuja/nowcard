@@ -3,10 +3,7 @@ import { clerkClient } from "@clerk/nextjs/server";
 const client_id = process.env.SPOTIFY_CLIENT_ID!;
 const client_secret = process.env.SPOTIFY_CLIENT_SECRET!;
 
-const SPOTIFY_REDIRECT_URI =
-  process.env.NODE_ENV === "production"
-    ? "https://nowcard.vercel.app/api/auth/callback"
-    : "http://127.0.0.1:3000/api/auth/callback";
+const SPOTIFY_REDIRECT_URI = process.env.SPOTIFY_REDIRECT_URI!;
 
 const ONBOARDING_REDIRECT_URL =
   process.env.NODE_ENV === "production"
