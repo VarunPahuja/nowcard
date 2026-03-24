@@ -7,7 +7,7 @@ const SPOTIFY_REDIRECT_URI = process.env.SPOTIFY_REDIRECT_URI!;
 
 const ONBOARDING_REDIRECT_URL =
   process.env.NODE_ENV === "production"
-    ? "https://nowcard.vercel.app/onboarding"
+    ? "https://nowcard.store/onboarding"
     : "http://localhost:3000/onboarding";
 
 export async function GET(req: Request) {
