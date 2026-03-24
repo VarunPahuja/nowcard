@@ -5,8 +5,10 @@ const client_id = process.env.SPOTIFY_CLIENT_ID!;
 const client_secret = process.env.SPOTIFY_CLIENT_SECRET!;
 
 const TOKEN_ENDPOINT = "https://accounts.spotify.com/api/token";
-const NOW_PLAYING_ENDPOINT = "https://api.spotify.com/v1/me/player/currently-playing";
-const RECENTLY_PLAYED_ENDPOINT = "https://api.spotify.com/v1/me/player/recently-played?limit=1";
+const NOW_PLAYING_ENDPOINT =
+  "https://api.spotify.com/v1/me/player/currently-playing";
+const RECENTLY_PLAYED_ENDPOINT =
+  "https://api.spotify.com/v1/me/player/recently-played?limit=1";
 
 interface Song {
   title: string;
@@ -30,46 +32,35 @@ async function getNowPlaying(refresh_token: string): Promise<Song> {
       refresh_token,
     }),
   });
+
   const tokenData = await tokenRes.json();
+
   if (!tokenData.access_token) {
-    console.error("Spotify token failed:", tokenData);
-    return {
-      title: "Spotify not connected",
-      artist: "",
-      albumImage: null,
-      isPlaying: false,
-    };
+    console.error("Spotify token refresh failed:", tokenData);
+    return { title: "Spotify auth failed", artist: "", albumImage: null, isPlaying: false };
   }
+
   const access_token: string = tokenData.access_token;
 
   const res = await fetch(NOW_PLAYING_ENDPOINT, {
-    headers: {
-      Authorization: `Bearer ${access_token}`,
-    },
+    headers: { Authorization: `Bearer ${access_token}` },
   });
 
   if (res.status === 204 || res.status > 400) {
     const recentRes = await fetch(RECENTLY_PLAYED_ENDPOINT, {
-      headers: {
-        Authorization: `Bearer ${access_token}`,
-      },
+      headers: { Authorization: `Bearer ${access_token}` },
     });
 
     const recentData = await recentRes.json();
     const lastTrack = recentData.items?.[0];
 
     if (!lastTrack) {
-      return {
-        title: "Nothing playing",
-        artist: "",
-        albumImage: null,
-        isPlaying: false,
-      };
+      return { title: "Nothing playing", artist: "", albumImage: null, isPlaying: false };
     }
 
-    const playedAt = new Date(lastTrack.played_at);
-    const now = new Date();
-    const diffMins = Math.floor((now.getTime() - playedAt.getTime()) / 60000);
+    const diffMins = Math.floor(
+      (Date.now() - new Date(lastTrack.played_at).getTime()) / 60000
+    );
 
     return {
       title: lastTrack.track.name,
@@ -79,16 +70,12 @@ async function getNowPlaying(refresh_token: string): Promise<Song> {
       lastPlayed: `${diffMins} mins ago`,
     };
   }
-  let song;
+
+  let song: any;
   try {
     song = await res.json();
   } catch {
-    return {
-      title: "Error fetching song",
-      artist: "",
-      albumImage: null,
-      isPlaying: false,
-    };
+    return { title: "Error fetching song", artist: "", albumImage: null, isPlaying: false };
   }
 
   return {
@@ -135,8 +122,7 @@ export async function GET(
   const accent = searchParams.get("accent") || "green";
   const hide = searchParams.get("hide") || "";
 
-  let user;
-
+  let user: any;
   try {
     const clerk = await clerkClient();
     user = await clerk.users.getUser(userId);
@@ -152,7 +138,14 @@ export async function GET(
     return new NextResponse("Spotify not connected", { status: 200 });
   }
 
-  const song = await getNowPlaying(refresh_token);
+  // ✅ wrapped so a Spotify failure returns a card, not a 500
+  let song: Song;
+  try {
+    song = await getNowPlaying(refresh_token);
+  } catch (err) {
+    console.error("getNowPlaying threw for user", userId, err);
+    song = { title: "Spotify unavailable", artist: "", albumImage: null, isPlaying: false };
+  }
 
   const userData = {
     name: user.firstName || "User",
