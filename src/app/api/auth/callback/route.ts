@@ -1,33 +1,47 @@
-import { clerkClient } from "@clerk/nextjs/server";
+import { clerkClient, auth } from "@clerk/nextjs/server";
 
 const client_id = process.env.SPOTIFY_CLIENT_ID!;
 const client_secret = process.env.SPOTIFY_CLIENT_SECRET!;
-
 const SPOTIFY_REDIRECT_URI = process.env.SPOTIFY_REDIRECT_URI!;
 
 const ONBOARDING_REDIRECT_URL =
   process.env.NODE_ENV === "production"
-    ? "https://nowcard.store/onboarding"
+    ? "https://www.nowcard.store/onboarding" // ✅ fixed www
     : "http://localhost:3000/onboarding";
 
 export async function GET(req: Request) {
   const requestUrl = new URL(req.url);
   const { searchParams } = requestUrl;
+
   const code = searchParams.get("code");
-  const userId = searchParams.get("state");
+  const stateUserId = searchParams.get("state");
+
+  // 🔥 real user from Clerk session
+  const { userId } = await auth();
 
   console.log("[spotify-callback] Callback received", {
     hasCode: Boolean(code),
-    hasState: Boolean(userId),
+    hasState: Boolean(stateUserId),
+    clerkUser: userId,
     origin: requestUrl.origin,
   });
 
+  // ❌ must have code + logged in user
   if (!code || !userId) {
-    console.error("[spotify-callback] Missing code or state", {
+    console.error("[spotify-callback] Missing code or auth user", {
       codePresent: Boolean(code),
-      userIdPresent: Boolean(userId),
+      userPresent: Boolean(userId),
     });
-    return new Response("Missing code or userId", { status: 400 });
+    return new Response("Missing code or user", { status: 400 });
+  }
+
+  // ⚠️ optional but recommended: verify state
+  if (stateUserId && stateUserId !== userId) {
+    console.error("[spotify-callback] State mismatch", {
+      stateUserId,
+      clerkUserId: userId,
+    });
+    return new Response("Invalid state", { status: 400 });
   }
 
   if (!client_id || !client_secret) {
@@ -55,6 +69,7 @@ export async function GET(req: Request) {
         redirect_uri: SPOTIFY_REDIRECT_URI,
       }),
     });
+
     data = await tokenResponse.json();
   } catch (err) {
     console.error("[spotify-callback] Token fetch threw:", err);
@@ -86,12 +101,13 @@ export async function GET(req: Request) {
 
   try {
     const clerk = await clerkClient();
-    // ✅ correct method — updateUserMetadata not updateUser
+
     await clerk.users.updateUserMetadata(userId, {
       unsafeMetadata: {
         spotifyRefreshToken: refresh_token,
       },
     });
+
     console.log("[spotify-callback] Stored refresh token in Clerk", { userId });
   } catch (err) {
     console.error("[spotify-callback] Clerk metadata save failed:", err);
