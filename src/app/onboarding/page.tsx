@@ -3,7 +3,7 @@ import { useUser } from "@clerk/nextjs";
 import { useState } from "react";
 
 export default function Onboarding() {
-  const { user } = useUser();
+  const { user, isLoaded } = useUser();
   const [project, setProject] = useState("");
   const [vibe, setVibe] = useState("");
   const [openToWork, setOpenToWork] = useState(true);
@@ -58,9 +58,9 @@ export default function Onboarding() {
         Open to Work
       </label>
       <br /><br />
-      <button type="button" onClick={handleConnectSpotify}>
-        Connect Spotify
-      </button>
+    <button type="button" onClick={handleConnectSpotify} disabled={!isLoaded || !user}>
+    {!isLoaded ? "Loading..." : "Connect Spotify"}
+    </button>
       <br /><br />
       <button type="button" onClick={save}>
         Save
