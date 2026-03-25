@@ -66,6 +66,16 @@ export default function Onboarding() {
       <button type="button" onClick={save}>
         Save
       </button>
+
+      {user && (
+        <div style={{ marginTop: 20 }}>
+          <p>Your card URL: 
+            <a href={`https://www.nowcard.store/api/card/${user.id}`} target="_blank">
+              https://www.nowcard.store/api/card/{user.id}
+            </a>
+          </p>
+        </div>
+      )}
     </div>
   );
 }
