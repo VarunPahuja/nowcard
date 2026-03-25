@@ -4,6 +4,7 @@ import { useState } from "react";
 
 export default function Onboarding() {
   const { user, isLoaded } = useUser();
+  console.log("Clerk state:", { isLoaded, hasUser: !!user, userId: user?.id });
   const [project, setProject] = useState("");
   const [vibe, setVibe] = useState("");
   const [openToWork, setOpenToWork] = useState(true);
@@ -58,9 +59,9 @@ export default function Onboarding() {
         Open to Work
       </label>
       <br /><br />
-    <button type="button" onClick={handleConnectSpotify} disabled={!isLoaded || !user}>
-    {!isLoaded ? "Loading..." : "Connect Spotify"}
-    </button>
+      <button type="button" onClick={handleConnectSpotify} disabled={!isLoaded || !user}>
+        {!isLoaded ? "Loading..." : "Connect Spotify"}
+      </button>
       <br /><br />
       <button type="button" onClick={save}>
         Save
