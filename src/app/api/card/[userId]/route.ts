@@ -34,10 +34,17 @@ async function getNowPlaying(refresh_token: string): Promise<Song> {
   });
 
   const tokenData = await tokenRes.json();
+  console.log("Token exchange status:", tokenRes.status);
+  console.log("Token exchange result:", JSON.stringify(tokenData));
 
   if (!tokenData.access_token) {
-    console.error("Spotify token refresh failed:", tokenData);
-    return { title: "Spotify auth failed", artist: "", albumImage: null, isPlaying: false };
+    console.error("Spotify token failed:", tokenData);
+    return {
+      title: "Spotify not connected",
+      artist: "",
+      albumImage: null,
+      isPlaying: false,
+    };
   }
 
   const access_token: string = tokenData.access_token;
