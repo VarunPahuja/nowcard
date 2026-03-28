@@ -1,14 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { clerkClient } from "@clerk/nextjs/server";
 
-const client_id = process.env.SPOTIFY_CLIENT_ID!;
-const client_secret = process.env.SPOTIFY_CLIENT_SECRET!;
-
-const TOKEN_ENDPOINT = "https://accounts.spotify.com/api/token";
-const NOW_PLAYING_ENDPOINT =
-  "https://api.spotify.com/v1/me/player/currently-playing";
-const RECENTLY_PLAYED_ENDPOINT =
-  "https://api.spotify.com/v1/me/player/recently-played?limit=1";
+const LASTFM_API_KEY = process.env.LASTFM_API_KEY!;
 
 interface Song {
   title: string;
@@ -18,79 +11,34 @@ interface Song {
   lastPlayed?: string;
 }
 
-async function getNowPlaying(refresh_token: string): Promise<Song> {
-  const basic = Buffer.from(`${client_id}:${client_secret}`).toString("base64");
+async function getNowPlaying(lastfmUsername: string): Promise<Song> {
+  const res = await fetch(
+    `https://ws.audioscrobbler.com/2.0/?method=user.getrecenttracks&user=${lastfmUsername}&api_key=${LASTFM_API_KEY}&format=json&limit=1`
+  );
 
-  const tokenRes = await fetch(TOKEN_ENDPOINT, {
-    method: "POST",
-    headers: {
-      Authorization: `Basic ${basic}`,
-      "Content-Type": "application/x-www-form-urlencoded",
-    },
-    body: new URLSearchParams({
-      grant_type: "refresh_token",
-      refresh_token,
-    }),
-  });
-
-  const tokenData = await tokenRes.json();
-  console.log("Token exchange status:", tokenRes.status);
-  console.log("Token exchange result:", JSON.stringify(tokenData));
-
-  if (!tokenData.access_token) {
-    console.error("Spotify token failed:", tokenData);
-    return {
-      title: "Spotify not connected",
-      artist: "",
-      albumImage: null,
-      isPlaying: false,
-    };
+  if (!res.ok) {
+    return { title: "Last.fm unavailable", artist: "", albumImage: null, isPlaying: false };
   }
 
-  const access_token: string = tokenData.access_token;
+  const data = await res.json();
+  const track = data.recenttracks?.track?.[0];
 
-  const res = await fetch(NOW_PLAYING_ENDPOINT, {
-    headers: { Authorization: `Bearer ${access_token}` },
-  });
-
-  if (res.status === 204 || res.status > 400) {
-    const recentRes = await fetch(RECENTLY_PLAYED_ENDPOINT, {
-      headers: { Authorization: `Bearer ${access_token}` },
-    });
-
-    const recentData = await recentRes.json();
-    const lastTrack = recentData.items?.[0];
-
-    if (!lastTrack) {
-      return { title: "Nothing playing", artist: "", albumImage: null, isPlaying: false };
-    }
-
-    const diffMins = Math.floor(
-      (Date.now() - new Date(lastTrack.played_at).getTime()) / 60000
-    );
-
-    return {
-      title: lastTrack.track.name,
-      artist: lastTrack.track.artists.map((a: any) => a.name).join(", "),
-      albumImage: lastTrack.track.album.images?.[0]?.url ?? null,
-      isPlaying: false,
-      lastPlayed: `${diffMins} mins ago`,
-    };
+  if (!track) {
+    return { title: "Nothing playing", artist: "", albumImage: null, isPlaying: false };
   }
 
-  let song: any;
-  try {
-    song = await res.json();
-  } catch {
-    return { title: "Error fetching song", artist: "", albumImage: null, isPlaying: false };
+  const isPlaying = track["@attr"]?.nowplaying === "true";
+  const title = track.name;
+  const artist = track.artist["#text"];
+  const albumImage = track.image?.find((img: any) => img.size === "large")?.["#text"] || null;
+
+  if (!isPlaying) {
+    const playedAt = new Date(parseInt(track.date?.uts || "0") * 1000);
+    const diffMins = Math.floor((Date.now() - playedAt.getTime()) / 60000);
+    return { title, artist, albumImage, isPlaying: false, lastPlayed: `${diffMins} mins ago` };
   }
 
-  return {
-    title: song.item.name,
-    artist: song.item.artists.map((a: any) => a.name).join(", "),
-    albumImage: song.item.album.images?.[0]?.url ?? null,
-    isPlaying: song.is_playing,
-  };
+  return { title, artist, albumImage, isPlaying: true };
 }
 
 async function imageToBase64(url: string): Promise<string> {
@@ -123,7 +71,6 @@ export async function GET(
   { params }: { params: Promise<{ userId: string }> }
 ) {
   const { userId } = await params;
-
   const { searchParams } = new URL(req.url);
   const theme = searchParams.get("theme") || "dark";
   const accent = searchParams.get("accent") || "green";
@@ -139,19 +86,24 @@ export async function GET(
   }
 
   const meta = user.unsafeMetadata as any;
-  const refresh_token: string | undefined = meta.spotifyRefreshToken;
+  const lastfmUsername: string | undefined = meta.lastfmUsername;
 
-  if (!refresh_token) {
-    return new NextResponse("Spotify not connected", { status: 200 });
+  if (!lastfmUsername) {
+    return new NextResponse(
+      `<svg width="420" height="60" xmlns="http://www.w3.org/2000/svg">
+        <rect width="420" height="60" rx="12" fill="#1c1c1e"/>
+        <text x="20" y="36" font-family="sans-serif" font-size="14" fill="#8e8e93">Last.fm not connected yet</text>
+      </svg>`,
+      { headers: { "Content-Type": "image/svg+xml", "Cache-Control": "no-cache" } }
+    );
   }
 
-  // ✅ wrapped so a Spotify failure returns a card, not a 500
   let song: Song;
   try {
-    song = await getNowPlaying(refresh_token);
+    song = await getNowPlaying(lastfmUsername);
   } catch (err) {
     console.error("getNowPlaying threw for user", userId, err);
-    song = { title: "Spotify unavailable", artist: "", albumImage: null, isPlaying: false };
+    song = { title: "Last.fm unavailable", artist: "", albumImage: null, isPlaying: false };
   }
 
   const userData = {
@@ -222,34 +174,17 @@ export async function GET(
       <rect x="${albumX}" y="${albumY}" width="${albumSize}" height="${albumSize}" rx="${albumRx}" ry="${albumRx}" />
     </clipPath>
   </defs>
-
   <rect x="0" y="${cardY}" width="${cardW}" height="${cardH}" rx="${cardRx}" ry="${cardRx}" fill="${t.bg}" />
-
-  ${
-    albumImageData
-      ? `<image href="${albumImageData}" x="${albumX}" y="${albumY}" width="${albumSize}" height="${albumSize}" clip-path="url(#albumClip)" preserveAspectRatio="xMidYMid slice" />`
-      : `<rect x="${albumX}" y="${albumY}" width="${albumSize}" height="${albumSize}" rx="${albumRx}" ry="${albumRx}" fill="#2a2a2e" stroke="#444" stroke-width="1.5" />
-  <text x="${cardW / 2}" y="${albumY + albumSize / 2 + 8}" text-anchor="middle" font-family="sans-serif" font-size="28" fill="#555">♪</text>`
+  ${albumImageData
+    ? `<image href="${albumImageData}" x="${albumX}" y="${albumY}" width="${albumSize}" height="${albumSize}" clip-path="url(#albumClip)" preserveAspectRatio="xMidYMid slice" />`
+    : `<rect x="${albumX}" y="${albumY}" width="${albumSize}" height="${albumSize}" rx="${albumRx}" ry="${albumRx}" fill="#2a2a2e" stroke="#444" stroke-width="1.5" />
+       <text x="${cardW / 2}" y="${albumY + albumSize / 2 + 8}" text-anchor="middle" font-family="sans-serif" font-size="28" fill="#555">♪</text>`
   }
-
   <text x="${cardW / 2}" y="${titleY}" text-anchor="middle" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="17" font-weight="800" fill="${t.text}" letter-spacing="0.2">${escapeXml(titleText)}</text>
-
-  ${
-    artistText
-      ? `<text x="${cardW / 2}" y="${artistY}" text-anchor="middle" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="13" font-weight="400" fill="${t.subtext}">${escapeXml(artistText)}</text>`
-      : ""
-  }
-
+  ${artistText ? `<text x="${cardW / 2}" y="${artistY}" text-anchor="middle" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="13" font-weight="400" fill="${t.subtext}">${escapeXml(artistText)}</text>` : ""}
   <text x="${cardW / 2}" y="${projectY}" text-anchor="middle" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12" fill="${t.subtext}"><tspan fill="${t.subtext}">Project: </tspan><tspan fill="${t.text}" font-weight="500">${escapeXml(truncate(userData.project, 36))}</tspan></text>
-
-  ${
-    !hide.includes("vibe")
-      ? `<text x="${cardW / 2}" y="${vibeY}" text-anchor="middle" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12" fill="${t.subtext}"><tspan fill="${t.subtext}">Vibe: </tspan><tspan fill="${t.text}" font-weight="500">${escapeXml(truncate(userData.vibe, 40))}</tspan></text>`
-      : ""
-  }
-
+  ${!hide.includes("vibe") ? `<text x="${cardW / 2}" y="${vibeY}" text-anchor="middle" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12" fill="${t.subtext}"><tspan fill="${t.subtext}">Vibe: </tspan><tspan fill="${t.text}" font-weight="500">${escapeXml(truncate(userData.vibe, 40))}</tspan></text>` : ""}
   <rect x="${badgeX}" y="${badgeCenterY - badgeH / 2}" width="${badgeW}" height="${badgeH}" rx="${badgeH / 2}" ry="${badgeH / 2}" fill="none" stroke="${badgeColor}" stroke-width="1.8" />
-
   <text x="${cardW / 2}" y="${badgeCenterY + 5}" text-anchor="middle" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="12" font-weight="700" letter-spacing="0.6" fill="${badgeColor}">${escapeXml(badgePrefix)}<tspan font-weight="800">${badgeLabel}</tspan></text>
 </svg>`;
 

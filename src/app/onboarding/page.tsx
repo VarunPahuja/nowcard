@@ -4,48 +4,46 @@ import { useState } from "react";
 
 export default function Onboarding() {
   const { user, isLoaded } = useUser();
-  console.log("Clerk state:", { isLoaded, hasUser: !!user, userId: user?.id });
   const [project, setProject] = useState("");
   const [vibe, setVibe] = useState("");
   const [openToWork, setOpenToWork] = useState(true);
+  const [lastfmUsername, setLastfmUsername] = useState("");
+  const [saved, setSaved] = useState(false);
 
   const save = async () => {
     await user?.update({
-      unsafeMetadata: { project, vibe, openToWork },
+      unsafeMetadata: {
+        project,
+        vibe,
+        openToWork,
+        lastfmUsername,
+      },
     });
-    alert("Saved!");
-  };
-
-  const handleConnectSpotify = () => {
-    if (!user?.id) {
-      alert("Not logged in yet, wait a second and try again");
-      return;
-    }
-
-    const params = new URLSearchParams({
-      response_type: "code",
-      client_id: process.env.NEXT_PUBLIC_SPOTIFY_CLIENT_ID!,
-      scope: "user-read-currently-playing user-read-recently-played",
-      redirect_uri: process.env.NEXT_PUBLIC_SPOTIFY_REDIRECT_URI!,
-      state: user.id,
-    });
-
-    window.location.assign(
-      "https://accounts.spotify.com/authorize?" + params.toString()
-    );
+    setSaved(true);
+    setTimeout(() => setSaved(false), 2000);
   };
 
   return (
     <div style={{ padding: 20 }}>
       <h1>Setup your NowCard</h1>
+      <br />
       <input
-        placeholder="Project"
+        placeholder="Last.fm username"
+        value={lastfmUsername}
+        onChange={(e) => setLastfmUsername(e.target.value)}
+      />
+      <p style={{ fontSize: 12, color: "#888", marginTop: 4 }}>
+        Get one free at last.fm
+      </p>
+      <br />
+      <input
+        placeholder="Current project"
         value={project}
         onChange={(e) => setProject(e.target.value)}
       />
       <br /><br />
       <input
-        placeholder="Vibe"
+        placeholder="Vibe (e.g. locked in, coasting)"
         value={vibe}
         onChange={(e) => setVibe(e.target.value)}
       />
@@ -56,24 +54,28 @@ export default function Onboarding() {
           checked={openToWork}
           onChange={() => setOpenToWork(!openToWork)}
         />
-        Open to Work
+        {" "}Open to Work
       </label>
       <br /><br />
-      <button type="button" onClick={handleConnectSpotify} disabled={!isLoaded || !user}>
-        {!isLoaded ? "Loading..." : "Connect Spotify"}
+      <button type="button" onClick={save} disabled={!isLoaded || !user}>
+        {saved ? "Saved!" : "Save"}
       </button>
       <br /><br />
-      <button type="button" onClick={save}>
-        Save
-      </button>
-
       {user && (
-        <div style={{ marginTop: 20 }}>
-          <p>Your card URL: 
-            <a href={`https://www.nowcard.store/api/card/${user.id}`} target="_blank">
-              https://www.nowcard.store/api/card/{user.id}
-            </a>
-          </p>
+        <div>
+          <p style={{ fontSize: 13, color: "#888" }}>Your card URL:</p>
+          <a
+            href={`https://www.nowcard.store/api/card/${user.id}`}
+            target="_blank"
+            style={{ fontSize: 13 }}
+          >
+            {`https://www.nowcard.store/api/card/${user.id}`}
+          </a>
+          <br /><br />
+          <p style={{ fontSize: 13, color: "#888" }}>Embed in your GitHub README:</p>
+          <code style={{ fontSize: 12 }}>
+            {`![NowCard](https://www.nowcard.store/api/card/${user.id})`}
+          </code>
         </div>
       )}
     </div>
