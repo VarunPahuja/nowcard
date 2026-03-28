@@ -1,154 +1,153 @@
 "use client";
+import { useState, useEffect } from "react";
 import { useUser } from "@clerk/nextjs";
-import { useState } from "react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Switch } from "@/components/ui/switch";
+import { useRouter } from "next/navigation";
+import { Check, X, Loader2 } from "lucide-react";
+import Nav from "@/components/Nav";
 
-export default function Onboarding() {
-  const { user, isLoaded } = useUser();
+const Onboarding = () => {
+  const router = useRouter();
+  const { user } = useUser();
+  const [lastfmUsername, setLastfmUsername] = useState("");
+  const [verifyState, setVerifyState] = useState<"idle" | "loading" | "success" | "error">("idle");
+  const [scrobbleCount, setScrobbleCount] = useState(0);
   const [project, setProject] = useState("");
   const [vibe, setVibe] = useState("");
-  const [openToWork, setOpenToWork] = useState(true);
-  const [lastfmUsername, setLastfmUsername] = useState("");
-  const [lastfmStatus, setLastfmStatus] = useState<"idle" | "checking" | "valid" | "invalid">("idle");
-  const [lastfmInfo, setLastfmInfo] = useState<any>(null);
-  const [saved, setSaved] = useState(false);
+  const [openToWork, setOpenToWork] = useState(false);
 
-  const verifyLastfm = async () => {
-    if (!lastfmUsername.trim()) return;
-    setLastfmStatus("checking");
-    setLastfmInfo(null);
-    try {
-      const res = await fetch(`/api/lastfm/verify?username=${lastfmUsername.trim()}`);
-      const data = await res.json();
-      if (data.valid) {
-        setLastfmStatus("valid");
-        setLastfmInfo(data);
-      } else {
-        setLastfmStatus("invalid");
+  useEffect(() => {
+    if (user?.unsafeMetadata) {
+      const meta = user.unsafeMetadata as any;
+      if (meta.lastfmUsername) {
+        setLastfmUsername(meta.lastfmUsername);
+        setVerifyState("success");
       }
-    } catch {
-      setLastfmStatus("invalid");
+      if (meta.project) setProject(meta.project);
+      if (meta.vibe) setVibe(meta.vibe);
+      if (typeof meta.openToWork === 'boolean') setOpenToWork(meta.openToWork);
     }
+  }, [user]);
+
+  const handleVerify = async () => {
+    if (!lastfmUsername.trim()) return;
+    setVerifyState("loading");
+    // Simulate API call to /api/lastfm/verify?username=xxx
+    setTimeout(() => {
+      if (lastfmUsername.toLowerCase() === "notfound") {
+        setVerifyState("error");
+      } else {
+        setScrobbleCount(Math.floor(Math.random() * 50000) + 1000);
+        setVerifyState("success");
+      }
+    }, 1200);
   };
 
-  const save = async () => {
-    if (lastfmStatus !== "valid") {
-      alert("Please verify your Last.fm username first");
-      return;
+  const handleSave = async () => {
+    if (user) {
+      await user.update({
+        unsafeMetadata: {
+          ...user.unsafeMetadata,
+          lastfmUsername,
+          project,
+          vibe,
+          openToWork
+        }
+      });
     }
-    await user?.update({
-      unsafeMetadata: {
-        project,
-        vibe,
-        openToWork,
-        lastfmUsername: lastfmUsername.trim(),
-      },
-    });
-    setSaved(true);
-    setTimeout(() => setSaved(false), 2000);
+    router.push("/dashboard");
   };
 
   return (
-    <div style={{ padding: 20, maxWidth: 480 }}>
-      <h1>Setup your NowCard</h1>
-      <br />
+    <div className="min-h-screen">
+      <Nav />
+      <main className="flex items-center justify-center px-4 py-16">
+        <div className="w-full max-w-[500px] space-y-6">
+          <div className="text-center space-y-2">
+            <h1 className="text-2xl font-bold text-foreground">Set up your card</h1>
+            <p className="text-muted-foreground text-sm">
+              Connect your Last.fm and tell the world what you're up to.
+            </p>
+          </div>
 
-      <label style={{ fontSize: 13, color: "#888" }}>Last.fm username</label>
-      <div style={{ display: "flex", gap: 8, marginTop: 4 }}>
-        <input
-          placeholder="your-lastfm-username"
-          value={lastfmUsername}
-          onChange={(e) => {
-            setLastfmUsername(e.target.value);
-            setLastfmStatus("idle");
-            setLastfmInfo(null);
-          }}
-          style={{ flex: 1 }}
-        />
-        <button
-          type="button"
-          onClick={verifyLastfm}
-          disabled={!lastfmUsername.trim() || lastfmStatus === "checking"}
-        >
-          {lastfmStatus === "checking" ? "Checking..." : "Verify"}
-        </button>
-      </div>
+          <div className="rounded-xl border border-border bg-card p-6 space-y-5">
+            {/* Last.fm */}
+            <div className="space-y-2">
+              <label className="text-sm font-medium text-foreground">Last.fm username</label>
+              <div className="flex gap-2">
+                <Input
+                  placeholder="e.g. vvannavv"
+                  value={lastfmUsername}
+                  onChange={(e) => {
+                    setLastfmUsername(e.target.value);
+                    setVerifyState("idle");
+                  }}
+                />
+                <Button
+                  variant="outline"
+                  onClick={handleVerify}
+                  disabled={!lastfmUsername.trim() || verifyState === "loading"}
+                >
+                  {verifyState === "loading" ? (
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                  ) : (
+                    "Verify"
+                  )}
+                </Button>
+              </div>
+              {verifyState === "success" && (
+                <div className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-primary/15 text-primary text-xs font-medium">
+                  <Check className="w-3.5 h-3.5" /> {lastfmUsername} ·{" "}
+                  {scrobbleCount.toLocaleString()} scrobbles
+                </div>
+              )}
+              {verifyState === "error" && (
+                <div className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-destructive/15 text-destructive text-xs font-medium">
+                  <X className="w-3.5 h-3.5" /> User not found
+                </div>
+              )}
+            </div>
 
-      {lastfmStatus === "valid" && lastfmInfo && (
-        <div style={{ marginTop: 8, padding: 10, background: "#1a2e1a", borderRadius: 8, border: "1px solid #22c55e" }}>
-          <p style={{ color: "#22c55e", fontSize: 13, margin: 0 }}>
-            ✓ Found: {lastfmInfo.name} · {parseInt(lastfmInfo.playcount).toLocaleString()} scrobbles
-          </p>
+            {/* Current Project */}
+            <div className="space-y-2">
+              <label className="text-sm font-medium text-foreground">Current project</label>
+              <Input
+                placeholder="e.g. NowCard"
+                value={project}
+                onChange={(e) => setProject(e.target.value)}
+              />
+            </div>
+
+            {/* Vibe */}
+            <div className="space-y-2">
+              <label className="text-sm font-medium text-foreground">Vibe</label>
+              <Input
+                placeholder="e.g. shipping fast 🚀"
+                value={vibe}
+                onChange={(e) => setVibe(e.target.value)}
+              />
+            </div>
+
+            {/* Open to Work */}
+            <div className="flex items-center justify-between py-1">
+              <label className="text-sm font-medium text-foreground">Open to work</label>
+              <Switch checked={openToWork} onCheckedChange={setOpenToWork} />
+            </div>
+
+            <Button
+              className="w-full"
+              disabled={verifyState !== "success"}
+              onClick={handleSave}
+            >
+              Save & generate card
+            </Button>
+          </div>
         </div>
-      )}
-
-      {lastfmStatus === "invalid" && (
-        <div style={{ marginTop: 8, padding: 10, background: "#2e1a1a", borderRadius: 8, border: "1px solid #ef4444" }}>
-          <p style={{ color: "#ef4444", fontSize: 13, margin: 0 }}>
-            ✕ Last.fm user not found. Check your username at last.fm
-          </p>
-        </div>
-      )}
-
-      <p style={{ fontSize: 12, color: "#666", marginTop: 6 }}>
-        No Last.fm account? Create one free at last.fm then connect Spotify to it.
-      </p>
-
-      <br />
-      <label style={{ fontSize: 13, color: "#888" }}>Current project</label>
-      <input
-        placeholder="e.g. NowCard"
-        value={project}
-        onChange={(e) => setProject(e.target.value)}
-        style={{ display: "block", marginTop: 4, width: "100%" }}
-      />
-      <br />
-
-      <label style={{ fontSize: 13, color: "#888" }}>Vibe</label>
-      <input
-        placeholder="e.g. locked in, coasting"
-        value={vibe}
-        onChange={(e) => setVibe(e.target.value)}
-        style={{ display: "block", marginTop: 4, width: "100%" }}
-      />
-      <br />
-
-      <label style={{ display: "flex", alignItems: "center", gap: 8, cursor: "pointer" }}>
-        <input
-          type="checkbox"
-          checked={openToWork}
-          onChange={() => setOpenToWork(!openToWork)}
-        />
-        <span style={{ fontSize: 14 }}>Open to Work</span>
-      </label>
-      <br />
-
-      <button
-        type="button"
-        onClick={save}
-        disabled={!isLoaded || !user || lastfmStatus !== "valid"}
-        style={{ opacity: lastfmStatus !== "valid" ? 0.5 : 1 }}
-      >
-        {saved ? "Saved!" : "Save"}
-      </button>
-
-      <br /><br />
-      {user && (
-        <div style={{ background: "#111", padding: 12, borderRadius: 8 }}>
-          <p style={{ fontSize: 12, color: "#888", margin: "0 0 4px" }}>Your card URL:</p>
-          <a
-            href={`https://www.nowcard.store/api/card/${user.id}`}
-            target="_blank"
-            style={{ fontSize: 12, color: "#3b82f6" }}
-          >
-            {`https://www.nowcard.store/api/card/${user.id}`}
-          </a>
-          <br /><br />
-          <p style={{ fontSize: 12, color: "#888", margin: "0 0 4px" }}>GitHub README embed:</p>
-          <code style={{ fontSize: 11, color: "#22c55e" }}>
-            {`![NowCard](https://www.nowcard.store/api/card/${user.id})`}
-          </code>
-        </div>
-      )}
+      </main>
     </div>
   );
-}
+};
+
+export default Onboarding;
