@@ -35,16 +35,61 @@ export default function Dashboard() {
 
   const [layout, setLayout] = useState<Layout>("default");
   const [accent, setAccent] = useState<Accent>("green");
-  const [hiddenModules, setHiddenModules] = useState<string[]>([]);
   const [imgLoading, setImgLoading] = useState(false);
   const [copiedUrl, setCopiedUrl] = useState(false);
   const [copiedEmbed, setCopiedEmbed] = useState(false);
+
+  const [showAlbumArt, setShowAlbumArt] = useState(true);
+  const [showVibe, setShowVibe] = useState(true);
+  const [showProject, setShowProject] = useState(true);
+  const [showOpenToWork, setShowOpenToWork] = useState(true);
+
+  const [isEditing, setIsEditing] = useState(false);
+  const [editProject, setEditProject] = useState('');
+  const [editVibe, setEditVibe] = useState('');
+  const [editOpenToWork, setEditOpenToWork] = useState(true);
+  const [editLastfm, setEditLastfm] = useState('');
+  const [saving, setSaving] = useState(false);
+  const [cardKey, setCardKey] = useState(0);
 
   useEffect(() => {
     if (authLoaded && !isSignedIn) router.push('/');
   }, [authLoaded, isSignedIn, router]);
 
-  // Compute card URL
+  useEffect(() => {
+    if (user?.unsafeMetadata) {
+      const meta = user.unsafeMetadata as any;
+      setEditProject(meta.project || '');
+      setEditVibe(meta.vibe || '');
+      setEditOpenToWork(meta.openToWork ?? true);
+      setEditLastfm(meta.lastfmUsername || '');
+    }
+  }, [user]);
+
+  const saveProfile = async () => {
+    setSaving(true);
+    await user?.update({
+      unsafeMetadata: {
+        project: editProject,
+        vibe: editVibe,
+        openToWork: editOpenToWork,
+        lastfmUsername: editLastfm,
+      },
+    });
+    setSaving(false);
+    setIsEditing(false);
+    setCardKey(prev => prev + 1);
+  };
+
+  const hiddenModules = useMemo(() => {
+    const hidden: string[] = [];
+    if (!showAlbumArt) hidden.push('albumart');
+    if (!showVibe) hidden.push('vibe');
+    if (!showProject) hidden.push('project');
+    if (!showOpenToWork) hidden.push('opentowork');
+    return hidden;
+  }, [showAlbumArt, showVibe, showProject, showOpenToWork]);
+
   const cardUrl = useMemo(() => {
     if (!user?.id) return "";
     const base = `https://www.nowcard.store/api/card/${user.id}`;
@@ -54,7 +99,7 @@ export default function Dashboard() {
     if (hiddenModules.length > 0) params.set('hide', hiddenModules.join(','));
     const query = params.toString();
     return query ? `${base}?${query}` : base;
-  }, [layout, accent, hiddenModules, user?.id]);
+  }, [layout, accent, hiddenModules, user?.id, editOpenToWork]);
 
   const embedSnippet = `![NowCard](${cardUrl})`;
 
@@ -82,11 +127,7 @@ export default function Dashboard() {
     );
   };
 
-  const toggleModule = (module: string) => {
-    setHiddenModules((prev) => 
-      prev.includes(module) ? prev.filter((m) => m !== module) : [...prev, module]
-    );
-  };
+  // Actions replaced with inline save
 
   if (!authLoaded || !user) return null;
 
@@ -108,19 +149,22 @@ export default function Dashboard() {
                 <div className="absolute -inset-1 bg-gradient-to-r from-primary/30 to-accent/30 rounded-2xl blur opacity-25 group-hover:opacity-50 transition duration-1000"></div>
                 <div className="relative bg-[#0d0d0d] border border-white/10 rounded-2xl p-6 min-h-[260px] flex items-center justify-center overflow-hidden">
                   {imgLoading && (
-                    <div className="absolute inset-0 flex items-center justify-center bg-[#0d0d0d] z-10">
+                    <div className="absolute inset-0 flex items-center justify-center bg-[#0d0d0d] z-10 transition-opacity duration-200">
                       <div className="w-full max-w-[480px] h-[200px] animate-pulse bg-white/5 rounded-xl flex items-center justify-center">
                         <Loader2 className="w-8 h-8 text-white/20 animate-spin" />
                       </div>
                     </div>
                   )}
-                  <img
-                    src={cardUrl}
-                    alt="NowCard Live Preview"
-                    className={`max-w-full transition-all duration-300 ${imgLoading ? 'scale-95 opacity-0' : 'scale-100 opacity-100'}`}
-                    onLoad={() => setImgLoading(false)}
-                    onError={() => setImgLoading(false)}
-                  />
+                  <div className="w-[480px] min-h-[200px] flex items-center justify-center">
+                    <img
+                      key={cardKey + cardUrl}
+                      src={cardUrl}
+                      alt="NowCard Live Preview"
+                      className={`max-w-full transition-opacity duration-200 ${imgLoading ? 'opacity-0' : 'opacity-100'}`}
+                      onLoad={() => setImgLoading(false)}
+                      onError={() => setImgLoading(false)}
+                    />
+                  </div>
                 </div>
               </div>
 
@@ -133,8 +177,8 @@ export default function Dashboard() {
                       value={cardUrl} 
                       className="w-full bg-[#111] border border-white/10 rounded-xl px-4 py-2.5 text-xs text-white/70 font-mono focus:outline-none"
                     />
-                    <Button variant="outline" size="icon" className="shrink-0 rounded-xl border-white/10" onClick={copyUrl}>
-                      {copiedUrl ? <Check className="w-4 h-4 text-green-500" /> : <Copy className="w-4 h-4" />}
+                    <Button variant="outline" className={`h-10 shrink-0 rounded-xl border-white/10 transition-colors ${copiedUrl ? 'bg-green-500/10 text-green-500 border-green-500/50 hover:bg-green-500/20' : ''}`} onClick={copyUrl}>
+                      {copiedUrl ? <><Check className="w-4 h-4 mr-2" /> Copied!</> : <><Copy className="w-4 h-4 mr-2" /> Copy</>}
                     </Button>
                   </div>
                 </div>
@@ -147,8 +191,8 @@ export default function Dashboard() {
                       value={embedSnippet} 
                       className="w-full bg-[#111] border border-white/10 rounded-xl px-4 py-2.5 text-xs text-white/70 font-mono focus:outline-none"
                     />
-                    <Button variant="outline" size="icon" className="shrink-0 rounded-xl border-white/10" onClick={copyEmbed}>
-                      {copiedEmbed ? <Check className="w-4 h-4 text-green-500" /> : <Copy className="w-4 h-4" />}
+                    <Button variant="outline" className={`h-10 shrink-0 rounded-xl border-white/10 transition-colors ${copiedEmbed ? 'bg-green-500/10 text-green-500 border-green-500/50 hover:bg-green-500/20' : ''}`} onClick={copyEmbed}>
+                      {copiedEmbed ? <><Check className="w-4 h-4 mr-2" /> Copied!</> : <><Copy className="w-4 h-4 mr-2" /> Copy</>}
                     </Button>
                   </div>
                 </div>
@@ -209,35 +253,85 @@ export default function Dashboard() {
             <div className="space-y-4">
               <h3 className="text-xs font-bold text-gray-500 uppercase tracking-widest">Modules</h3>
               <div className="space-y-3">
-                {[
-                  { id: 'albumArt', label: 'Show album art' },
-                  { id: 'vibe', label: 'Show vibe' },
-                  { id: 'project', label: 'Show project' },
-                  { id: 'openToWork', label: 'Open to work badge' },
-                ].map((mod) => (
-                  <div key={mod.id} className="flex items-center justify-between py-1">
-                    <span className="text-sm text-gray-300 font-medium">{mod.label}</span>
-                    <Switch
-                      checked={!hiddenModules.includes(mod.id)}
-                      onCheckedChange={() => {
-                        setImgLoading(true);
-                        toggleModule(mod.id);
-                      }}
-                    />
-                  </div>
-                ))}
+                <div className="flex items-center justify-between py-2">
+                  <span className="text-sm text-white">Show album art</span>
+                  <Switch checked={showAlbumArt} onCheckedChange={(val) => { setImgLoading(true); setShowAlbumArt(val); }} />
+                </div>
+                <div className="flex items-center justify-between py-2">
+                  <span className="text-sm text-white">Show vibe</span>
+                  <Switch checked={showVibe} onCheckedChange={(val) => { setImgLoading(true); setShowVibe(val); }} />
+                </div>
+                <div className="flex items-center justify-between py-2">
+                  <span className="text-sm text-white">Show project</span>
+                  <Switch checked={showProject} onCheckedChange={(val) => { setImgLoading(true); setShowProject(val); }} />
+                </div>
+                <div className="flex items-center justify-between py-2">
+                  <span className="text-sm text-white">Open to work badge</span>
+                  <Switch checked={showOpenToWork} onCheckedChange={(val) => { setImgLoading(true); setShowOpenToWork(val); }} />
+                </div>
               </div>
             </div>
 
             <div className="pt-4 space-y-3">
-              <h3 className="text-xs font-bold text-gray-500 uppercase tracking-widest">Actions</h3>
+              <h3 className="text-xs font-bold text-gray-500 uppercase tracking-widest">Profile Info</h3>
               <Button 
                 variant="outline" 
                 className="w-full rounded-xl border-white/10 bg-[#1a1a1a] hover:bg-[#222] text-white gap-2"
-                onClick={() => router.push('/onboarding')}
+                onClick={() => setIsEditing(!isEditing)}
               >
-                <Pencil className="w-4 h-4" /> Edit Profile
+                <Pencil className="w-4 h-4" /> {isEditing ? 'Cancel editing' : 'Edit card info'}
               </Button>
+
+              {isEditing && (
+                <div className="space-y-3 mt-4 p-4 bg-[#1a1a1a] rounded-xl border border-[#333]">
+                  <div>
+                    <label className="text-xs text-[#888] mb-1 block">Last.fm username</label>
+                    <input
+                      value={editLastfm}
+                      onChange={e => setEditLastfm(e.target.value)}
+                      className="w-full bg-[#111] border border-[#333] rounded-lg px-3 py-2 text-white text-sm"
+                      placeholder="your-lastfm-username"
+                    />
+                  </div>
+                  <div>
+                    <label className="text-xs text-[#888] mb-1 block">Current project</label>
+                    <input
+                      value={editProject}
+                      onChange={e => setEditProject(e.target.value)}
+                      className="w-full bg-[#111] border border-[#333] rounded-lg px-3 py-2 text-white text-sm"
+                      placeholder="e.g. NowCard"
+                    />
+                  </div>
+                  <div>
+                    <label className="text-xs text-[#888] mb-1 block">Vibe</label>
+                    <input
+                      value={editVibe}
+                      onChange={e => setEditVibe(e.target.value)}
+                      className="w-full bg-[#111] border border-[#333] rounded-lg px-3 py-2 text-white text-sm"
+                      placeholder="e.g. locked in, coasting"
+                    />
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <label className="text-xs text-[#888]">Open to work</label>
+                    <Switch checked={editOpenToWork} onCheckedChange={setEditOpenToWork} />
+                  </div>
+                  <div className="flex gap-2 pt-2">
+                    <button
+                      onClick={saveProfile}
+                      disabled={saving}
+                      className="flex-1 bg-[#22c55e] text-black font-semibold text-sm py-2 rounded-lg hover:opacity-90 transition-opacity disabled:opacity-50"
+                    >
+                      {saving ? 'Saving...' : 'Save changes'}
+                    </button>
+                    <button
+                      onClick={() => setIsEditing(false)}
+                      className="px-4 border border-[#333] text-white text-sm py-2 rounded-lg hover:border-[#555] transition-colors"
+                    >
+                      Cancel
+                    </button>
+                  </div>
+                </div>
+              )}
             </div>
           </div>
         </div>

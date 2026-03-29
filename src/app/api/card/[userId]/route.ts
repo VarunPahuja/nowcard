@@ -84,10 +84,24 @@ const GITHUB_ICON = `M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.
 
 // Layout implementers
 const layouts: Record<string, (data: any) => string> = {
-  default: ({ song, userData, accent, hide, albumData }) => {
+  default: ({ song, userData, accent, showAlbumArt, showVibe, showProject, showOpenToWork, albumData }) => {
     const width = 480;
-    const height = 200;
-    const hideModules = hide.split(",");
+    
+    let currentY = 130;
+    let projectY = 0;
+    let vibeY = 0;
+    
+    if (showProject) {
+      projectY = currentY;
+      currentY += 18;
+    }
+    if (showVibe) {
+      vibeY = currentY;
+      currentY += 18;
+    }
+    
+    const showBadge = showOpenToWork && userData.openToWork;
+    const height = showBadge ? currentY + 40 : currentY + 10;
     
     return `<svg width="${width}" height="${height}" viewBox="0 0 ${width} ${height}" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
       <defs>
@@ -113,70 +127,84 @@ const layouts: Record<string, (data: any) => string> = {
       
       <line x1="24" y1="110" x2="${width - 24}" y2="110" stroke="#222" stroke-width="1" />
       
-      ${!hideModules.includes('project') ? `
-        <text x="24" y="130" class="label">Project: <tspan class="value">${escapeXml(truncate(userData.project, 30))}</tspan></text>
+      ${showProject ? `
+        <text x="24" y="${projectY}" class="label">Project: <tspan class="value">${escapeXml(truncate(userData.project, 30))}</tspan></text>
       ` : ''}
       
-      ${!hideModules.includes('vibe') ? `
-        <text x="24" y="148" class="label">Vibe: <tspan class="value">${escapeXml(truncate(userData.vibe, 30))}</tspan></text>
+      ${showVibe ? `
+        <text x="24" y="${vibeY}" class="label">Vibe: <tspan class="value">${escapeXml(truncate(userData.vibe, 30))}</tspan></text>
       ` : ''}
       
-      ${!hideModules.includes('openToWork') && userData.openToWork ? `
-        <rect x="${width - 160}" y="${height - 40}" width="136" height="24" rx="12" fill="none" stroke="${accent}" stroke-width="1" />
-        <text x="${width - 150}" y="${height - 24}" class="badge">OPEN TO WORK: YES</text>
+      ${showBadge ? `
+        <rect x="${width - 160}" y="${height - 34}" width="136" height="24" rx="12" fill="none" stroke="${accent}" stroke-width="1" />
+        <text x="${width - 92}" y="${height - 18}" text-anchor="middle" class="badge">OPEN TO WORK: YES</text>
       ` : ''}
       
-      ${!hideModules.includes('albumArt') && albumData ? `
+      ${showAlbumArt && albumData ? `
         <image href="${albumData}" x="360" y="40" width="80" height="80" clip-path="url(#albumClip)" preserveAspectRatio="xMidYMid slice" />
-      ` : !hideModules.includes('albumArt') ? `
+      ` : showAlbumArt ? `
         <rect x="360" y="40" width="80" height="80" rx="8" fill="#222" />
         <text x="400" y="85" text-anchor="middle" font-size="24" fill="#444">♪</text>
       ` : ''}
     </svg>`;
   },
   
-  soft: ({ song, userData, accent, hide, albumData }) => {
+  soft: ({ song, userData, accent, showAlbumArt, showVibe, showProject, showOpenToWork, albumData }) => {
     const width = 480;
-    const height = 160;
-    const hideModules = hide.split(",");
+    
+    let textY = 100;
+    let pY = 0;
+    let vY = 0;
+    
+    if (showProject) {
+      pY = textY;
+      textY += 16;
+    }
+    if (showVibe) {
+      vY = textY;
+      textY += 16;
+    }
+    
+    const showBadge = showOpenToWork && userData.openToWork;
+    const contentH = Math.max(120, textY + (showBadge ? 24 : 0));
+    const height = contentH + 20; // Some padding
     
     return `<svg width="${width}" height="${height}" viewBox="0 0 ${width} ${height}" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
       <defs>
         <clipPath id="albumClip">
-          <rect x="16" y="30" width="100" height="100" rx="12" />
+          <rect x="16" y="20" width="100" height="100" rx="12" />
         </clipPath>
       </defs>
       <rect width="${width}" height="${height}" rx="16" fill="#fafafa" stroke="#e5e5e5" stroke-width="1" />
       
-      ${!hideModules.includes('albumArt') && albumData ? `
-        <image href="${albumData}" x="16" y="30" width="100" height="100" clip-path="url(#albumClip)" preserveAspectRatio="xMidYMid slice" />
-      ` : `<rect x="16" y="30" width="100" height="100" rx="12" fill="#f0f0f0" />`}
+      ${showAlbumArt && albumData ? `
+        <image href="${albumData}" x="16" y="20" width="100" height="100" clip-path="url(#albumClip)" preserveAspectRatio="xMidYMid slice" />
+      ` : showAlbumArt ? `<rect x="16" y="20" width="100" height="100" rx="12" fill="#f0f0f0" />` : ''}
       
-      <g transform="translate(132, 0)">
+      <g transform="translate(${showAlbumArt ? 132 : 24}, 0)">
         <text x="0" y="40" font-family="sans-serif" font-size="9" fill="#999" letter-spacing="1.5">${song.isPlaying ? 'NOW PLAYING' : 'WAS LISTENING TO'}</text>
         <text x="0" y="62" font-family="sans-serif" font-size="18" font-weight="bold" fill="#111">${escapeXml(truncate(song.title, 30))}</text>
         <text x="0" y="80" font-family="sans-serif" font-size="13" fill="#666">${escapeXml(truncate(song.artist, 40))}</text>
         
-        ${!hideModules.includes('project') ? `
-          <text x="0" y="100" font-family="sans-serif" font-size="12" fill="#999">Project: <tspan fill="#333">${escapeXml(truncate(userData.project, 30))}</tspan></text>
+        ${showProject ? `
+          <text x="0" y="${pY}" font-family="sans-serif" font-size="12" fill="#999">Project: <tspan fill="#333">${escapeXml(truncate(userData.project, 30))}</tspan></text>
         ` : ''}
         
-        ${!hideModules.includes('vibe') ? `
-          <text x="0" y="116" font-family="sans-serif" font-size="12" fill="#999">Vibe: <tspan fill="#333">${escapeXml(truncate(userData.vibe, 30))}</tspan></text>
+        ${showVibe ? `
+          <text x="0" y="${vY}" font-family="sans-serif" font-size="12" fill="#999">Vibe: <tspan fill="#333">${escapeXml(truncate(userData.vibe, 30))}</tspan></text>
         ` : ''}
       </g>
       
-      ${!hideModules.includes('openToWork') && userData.openToWork ? `
+      ${showBadge ? `
         <rect x="${width - 100}" y="${height - 36}" width="84" height="20" rx="10" fill="none" stroke="${accent}" stroke-width="1" />
         <text x="${width - 58}" y="${height - 22}" text-anchor="middle" font-family="sans-serif" font-size="10" font-weight="bold" fill="${accent}">AVAILABLE</text>
       ` : ''}
     </svg>`;
   },
   
-  compact: ({ song, userData, accent, hide, albumData }) => {
+  compact: ({ song, userData, accent, showAlbumArt, showVibe, showProject, showOpenToWork, albumData }) => {
     const width = 480;
     const height = 80;
-    const hideModules = hide.split(",");
     
     return `<svg width="${width}" height="${height}" viewBox="0 0 ${width} ${height}" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
       <defs>
@@ -186,36 +214,50 @@ const layouts: Record<string, (data: any) => string> = {
       </defs>
       <rect width="${width}" height="${height}" rx="10" fill="#ffffff" stroke="#e0e0e0" stroke-width="1" />
       
-      ${!hideModules.includes('albumArt') && albumData ? `
+      ${showAlbumArt && albumData ? `
         <image href="${albumData}" x="12" y="12" width="56" height="56" clip-path="url(#albumClip)" preserveAspectRatio="xMidYMid slice" />
-      ` : !hideModules.includes('albumArt') ? `<rect x="12" y="12" width="56" height="56" rx="6" fill="#f5f5f5" />` : ''}
+      ` : showAlbumArt ? `<rect x="12" y="12" width="56" height="56" rx="6" fill="#f5f5f5" />` : ''}
       
-      <g transform="translate(${hideModules.includes('albumArt') ? 16 : 80}, 0)">
+      <g transform="translate(${showAlbumArt ? 80 : 20}, 0)">
         <text x="0" y="28" font-family="sans-serif" font-size="9" fill="#999">NOW PLAYING</text>
         <text x="0" y="46" font-family="sans-serif" font-size="14" font-weight="bold" fill="#111">${escapeXml(truncate(song.title, 32))}</text>
         <text x="0" y="62" font-family="sans-serif" font-size="12" fill="#777">${escapeXml(truncate(song.artist, 40))}</text>
       </g>
       
-      <g transform="translate(320, 0)">
-        ${!hideModules.includes('project') ? `
+      <g transform="translate(300, 0)">
+        ${showProject ? `
           <text x="0" y="40" font-family="sans-serif" font-size="11" fill="#777">P: <tspan fill="#333">${escapeXml(truncate(userData.project, 15))}</tspan></text>
         ` : ''}
-        ${!hideModules.includes('vibe') ? `
+        ${showVibe ? `
           <text x="0" y="56" font-family="sans-serif" font-size="11" fill="#777">V: <tspan fill="#333">${escapeXml(truncate(userData.vibe, 15))}</tspan></text>
         ` : ''}
       </g>
       
-      ${!hideModules.includes('openToWork') && userData.openToWork ? `
+      ${showOpenToWork && userData.openToWork ? `
         <circle cx="${width - 86}" cy="40" r="3" fill="#22c55e" />
         <text x="${width - 76}" y="44" font-family="sans-serif" font-size="10" font-weight="bold" fill="#22c55e">AVAILABLE</text>
       ` : ''}
     </svg>`;
   },
   
-  hero: ({ song, userData, accent, hide, albumData }) => {
+  hero: ({ song, userData, accent, showAlbumArt, showVibe, showProject, showOpenToWork, albumData }) => {
     const width = 480;
-    const height = 240;
-    const hideModules = hide.split(",");
+    
+    let currentY = showAlbumArt ? 160 : 70;
+    let projY = 0;
+    let vbY = 0;
+    
+    if (showProject) {
+      projY = currentY;
+      currentY += 18;
+    }
+    if (showVibe) {
+      vbY = currentY;
+      currentY += 18;
+    }
+    
+    const showBadge = showOpenToWork && userData.openToWork;
+    const height = currentY + (showBadge ? 60 : 20);
     
     return `<svg width="${width}" height="${height}" viewBox="0 0 ${width} ${height}" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
       <defs>
@@ -225,35 +267,34 @@ const layouts: Record<string, (data: any) => string> = {
       </defs>
       <rect width="${width}" height="${height}" rx="16" fill="#0d0d0d" />
       
-      ${!hideModules.includes('albumArt') && albumData ? `
+      ${showAlbumArt && albumData ? `
         <image href="${albumData}" x="${width / 2 - 36}" y="20" width="72" height="72" clip-path="url(#albumClip)" preserveAspectRatio="xMidYMid slice" />
-      ` : !hideModules.includes('albumArt') ? `
+      ` : showAlbumArt ? `
         <circle cx="${width / 2}" cy="56" r="36" fill="#1a1a1a" stroke="#333" stroke-width="1" />
         <text x="${width / 2}" y="66" text-anchor="middle" font-size="28" fill="#444">♪</text>
       ` : ''}
       
-      <text x="${width / 2}" y="115" text-anchor="middle" font-family="sans-serif" font-size="22" font-weight="bold" fill="#ffffff">${escapeXml(truncate(song.title, 34))}</text>
-      <text x="${width / 2}" y="135" text-anchor="middle" font-family="sans-serif" font-size="14" fill="#888888">${escapeXml(truncate(song.artist, 48))}</text>
+      <text x="${width / 2}" y="${showAlbumArt ? 115 : 35}" text-anchor="middle" font-family="sans-serif" font-size="22" font-weight="bold" fill="#ffffff">${escapeXml(truncate(song.title, 34))}</text>
+      <text x="${width / 2}" y="${showAlbumArt ? 135 : 55}" text-anchor="middle" font-family="sans-serif" font-size="14" fill="#888888">${escapeXml(truncate(song.artist, 48))}</text>
       
-      ${!hideModules.includes('project') ? `
-        <text x="${width / 2}" y="160" text-anchor="middle" font-family="sans-serif" font-size="12" fill="#666">Project: <tspan fill="#aaa">${escapeXml(truncate(userData.project, 40))}</tspan></text>
+      ${showProject ? `
+        <text x="${width / 2}" y="${projY}" text-anchor="middle" font-family="sans-serif" font-size="12" fill="#666">Project: <tspan fill="#aaa">${escapeXml(truncate(userData.project, 40))}</tspan></text>
       ` : ''}
       
-      ${!hideModules.includes('vibe') ? `
-        <text x="${width / 2}" y="178" text-anchor="middle" font-family="sans-serif" font-size="12" fill="#666">Vibe: <tspan fill="#aaa">${escapeXml(truncate(userData.vibe, 40))}</tspan></text>
+      ${showVibe ? `
+        <text x="${width / 2}" y="${vbY}" text-anchor="middle" font-family="sans-serif" font-size="12" fill="#666">Vibe: <tspan fill="#aaa">${escapeXml(truncate(userData.vibe, 40))}</tspan></text>
       ` : ''}
       
-      ${!hideModules.includes('openToWork') && userData.openToWork ? `
+      ${showBadge ? `
         <rect x="${width / 2 - 75}" y="${height - 45}" width="150" height="28" rx="14" fill="${accent}" />
         <text x="${width / 2}" y="${height - 27}" text-anchor="middle" font-family="sans-serif" font-size="11" font-weight="bold" fill="#000">OPEN TO WORK: YES</text>
       ` : ''}
     </svg>`;
   },
   
-  grid: ({ song, userData, accent, hide, albumData }) => {
+  grid: ({ song, userData, accent, showAlbumArt, showVibe, showProject, showOpenToWork, albumData }) => {
     const width = 480;
     const height = 200;
-    const hideModules = hide.split(",");
     
     return `<svg width="${width}" height="${height}" viewBox="0 0 ${width} ${height}" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
       <defs>
@@ -266,35 +307,42 @@ const layouts: Record<string, (data: any) => string> = {
       <!-- Row 1 -->
       <g transform="translate(14, 14)">
         <rect width="220" height="80" rx="8" fill="#f9f9f9" />
-        ${albumData ? `<image href="${albumData}" x="12" y="22" width="36" height="36" clip-path="url(#albumClip)" preserveAspectRatio="xMidYMid slice" />` : `<rect x="12" y="22" width="36" height="36" rx="4" fill="#eee" />`}
-        <text x="56" y="36" font-family="sans-serif" font-size="14" font-weight="bold" fill="#111">${escapeXml(truncate(song.title, 18))}</text>
-        <text x="56" y="52" font-family="sans-serif" font-size="11" fill="#777">${escapeXml(truncate(song.artist, 20))}</text>
+        ${showAlbumArt && albumData ? `<image href="${albumData}" x="12" y="22" width="36" height="36" clip-path="url(#albumClip)" preserveAspectRatio="xMidYMid slice" />` : showAlbumArt ? `<rect x="12" y="22" width="36" height="36" rx="4" fill="#eee" />` : ''}
+        <g transform="translate(${showAlbumArt ? 0 : -44}, 0)">
+          <text x="56" y="36" font-family="sans-serif" font-size="14" font-weight="bold" fill="#111">${escapeXml(truncate(song.title, 18))}</text>
+          <text x="56" y="52" font-family="sans-serif" font-size="11" fill="#777">${escapeXml(truncate(song.artist, 20))}</text>
+        </g>
       </g>
       
+      ${showProject ? `
       <g transform="translate(246, 14)">
         <rect width="220" height="80" rx="8" fill="#f9f9f9" />
         <text x="16" y="30" font-family="sans-serif" font-size="9" font-weight="bold" fill="#999">PROJECT</text>
         <text x="16" y="52" font-family="sans-serif" font-size="14" font-weight="bold" fill="#111">${escapeXml(truncate(userData.project, 24))}</text>
       </g>
+      ` : ''}
       
       <!-- Row 2 -->
+      ${showVibe ? `
       <g transform="translate(14, 106)">
         <rect width="220" height="80" rx="8" fill="#f9f9f9" />
         <text x="16" y="30" font-family="sans-serif" font-size="9" font-weight="bold" fill="#999">VIBE</text>
         <text x="16" y="52" font-family="sans-serif" font-size="14" font-weight="bold" fill="#111">${escapeXml(truncate(userData.vibe, 24))}</text>
       </g>
+      ` : ''}
       
+      ${showOpenToWork ? `
       <g transform="translate(246, 106)">
         <rect width="220" height="80" rx="8" fill="${userData.openToWork ? '#dcfce7' : '#fef2f2'}" />
         <text x="110" y="44" text-anchor="middle" font-family="sans-serif" font-size="10" font-weight="bold" fill="${userData.openToWork ? '#166534' : '#991b1b'}">OPEN TO WORK</text>
       </g>
+      ` : ''}
     </svg>`;
   },
   
-  minimal: ({ song, userData, accent, hide }) => {
+  minimal: ({ song, userData, accent, showAlbumArt}) => {
     const width = 480;
     const height = 130;
-    const hideModules = hide.split(",");
     
     return `<svg width="${width}" height="${height}" viewBox="0 0 ${width} ${height}" xmlns="http://www.w3.org/2000/svg">
       <rect width="${width}" height="${height}" rx="8" fill="#f8f8f8" stroke="#dddddd" stroke-width="1" />
@@ -313,7 +361,7 @@ const layouts: Record<string, (data: any) => string> = {
     </svg>`;
   },
   
-  gradient: ({ song, userData, accent, hide }) => {
+  gradient: ({ song, userData, accent }) => {
     const width = 480;
     const height = 180;
     
@@ -357,7 +405,14 @@ export async function GET(
   const layout = searchParams.get("layout") || "default";
   const theme = searchParams.get("theme") || "dark"; // For some layouts it might matter
   const accent = searchParams.get("accent") || "green";
+  
   const hide = searchParams.get("hide") || "";
+  const hideModules = hide.split(',').map(s => s.trim()).filter(Boolean);
+
+  const showAlbumArt = !hideModules.includes('albumart');
+  const showVibe = !hideModules.includes('vibe');
+  const showProject = !hideModules.includes('project');
+  const showOpenToWork = !hideModules.includes('opentowork');
 
   const accents: Record<string, string> = {
     green: "#22c55e",
@@ -399,12 +454,21 @@ export async function GET(
   };
 
   let albumData = "";
-  if (song.albumImage && !hide.includes('albumArt')) {
+  if (song.albumImage && showAlbumArt) {
     albumData = await imageToBase64(song.albumImage);
   }
 
   const selectedLayout = layouts[layout] || layouts.default;
-  const svg = selectedLayout({ song, userData, accent: accentColor, hide, albumData });
+  const svg = selectedLayout({ 
+    song, 
+    userData, 
+    accent: accentColor, 
+    showAlbumArt,
+    showVibe,
+    showProject,
+    showOpenToWork,
+    albumData 
+  });
 
   return new NextResponse(svg, {
     status: 200,

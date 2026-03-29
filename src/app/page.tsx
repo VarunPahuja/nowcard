@@ -2,6 +2,7 @@
 import { useEffect } from "react";
 import { useAuth } from "@clerk/nextjs";
 import { MockCard } from "@/components/MockCard";
+import { CardShowcase } from "@/components/CardShowcase";
 import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
 import Nav from "@/components/Nav";
@@ -14,10 +15,6 @@ export default function Landing() {
   useEffect(() => {
     if (isLoaded && isSignedIn) router.push('/dashboard');
   }, [isLoaded, isSignedIn, router]);
-
-  const layouts = [
-    "Default", "Soft", "Compact", "Hero", "Grid", "Minimal", "Gradient"
-  ];
 
   return (
     <div className="min-h-screen bg-[#050505] text-white">
@@ -67,28 +64,7 @@ export default function Landing() {
       </main>
 
       {/* Layout Showcase */}
-      <section id="showcase" className="py-24 bg-[#0a0a0a] border-y border-white/5 overflow-hidden">
-        <div className="max-w-7xl mx-auto px-6 mb-12 flex items-center justify-between">
-          <h2 className="text-3xl font-bold tracking-tight">One card, many vibes.</h2>
-          <div className="hidden sm:flex gap-2">
-            <div className="w-10 h-1 rounded-full bg-white/20"></div>
-            <div className="w-4 h-1 rounded-full bg-white/10"></div>
-            <div className="w-4 h-1 rounded-full bg-white/10"></div>
-          </div>
-        </div>
-        
-        <div className="flex gap-8 px-6 animate-scroll whitespace-nowrap overflow-x-auto pb-8 no-scrollbar">
-          {layouts.map((l) => (
-            <div key={l} className="flex-none p-4 rounded-2xl bg-white/5 border border-white/10 w-64 text-center space-y-3">
-              <div className="h-32 bg-white/5 rounded-xl flex items-center justify-center font-bold text-white/20 text-4xl">
-                {l[0]}
-              </div>
-              <p className="font-bold text-white/80">{l} Layout</p>
-            </div>
-          ))}
-          {/* Duplicate for infinite scroll feel if needed, but simple horizontal scroll for now */}
-        </div>
-      </section>
+      <CardShowcase />
 
       {/* Why NowCard */}
       <section className="py-32 px-6">
