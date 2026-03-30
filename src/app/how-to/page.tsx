@@ -9,9 +9,9 @@ const steps = [
   },
   {
     number: 2,
-    title: "Connect Spotify to Last.fm",
+    title: "Connect your music to Last.fm",
     description:
-      "In your Last.fm settings, go to Applications → Connect Spotify. This lets Last.fm scrobble your listening history automatically.",
+      "In your Last.fm settings, go to Applications. You can connect Spotify, Apple Music, YouTube Music, and more. This lets Last.fm scrobble your listening history automatically across all platforms.",
   },
   {
     number: 3,

@@ -119,7 +119,7 @@ export default function Dashboard() {
 
   const shareOnLinkedIn = () => {
     const text = encodeURIComponent(
-      "I built my live developer identity card with NowCard! Updated live from my Spotify & Last.fm. Check it out 👇"
+      "I built my live developer identity card with NowCard! Updated live from my music activity (via Last.fm). Check it out 👇"
     );
     window.open(
       `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(cardUrl)}`,

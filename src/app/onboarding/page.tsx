@@ -95,7 +95,7 @@ export default function Onboarding() {
             {/* Last.fm section */}
             <div className="space-y-3">
               <label className="text-sm font-semibold tracking-wide uppercase text-muted-foreground">
-                Last.fm username
+                Last.fm username (tracks your music across platforms)
               </label>
               <div className="flex gap-2">
                 <Input
@@ -136,7 +136,7 @@ export default function Onboarding() {
               )}
 
               <p className="text-[11px] text-muted-foreground mt-1">
-                No account? Create one free at last.fm — connect Spotify to it to scrobble live.
+                No account? Create one free at Last.fm — connect Spotify, Apple Music & more to scrobble live.
               </p>
             </div>
 

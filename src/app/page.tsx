@@ -385,7 +385,7 @@ export default function Landing() {
       <section className="py-12 px-6 border-t border-white/5">
         <div className="max-w-6xl mx-auto grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
           {[
-            { icon: Music, title: "Live music", desc: "Syncs via Last.fm. Works with Spotify." },
+            { icon: Music, title: "Live music", desc: "Syncs via Last.fm. Works with Spotify, Apple Music & more." },
             { icon: Layers, title: "7 layouts", desc: "From minimal to full hero designs." },
             { icon: Zap, title: "Real-time", desc: "README stays fresh automatically." },
             { icon: Briefcase, title: "Open to work", desc: "Signal availability to recruiters." },
@@ -409,7 +409,7 @@ export default function Landing() {
           <h2 className="text-xl font-bold text-white mb-8 text-center">How it works</h2>
           <div className="grid sm:grid-cols-3 gap-6">
             {[
-              { step: "01", title: "Create Last.fm", desc: "Free account. Connect Spotify to scrobble automatically." },
+              { step: "01", title: "Create Last.fm", desc: "Free account. Connect your music to scrobble automatically." },
               { step: "02", title: "Setup profile", desc: "Enter your username, project, vibe. Takes 2 minutes." },
               { step: "03", title: "Embed in README", desc: "Copy one line of markdown. Done." },
             ].map((item) => (
