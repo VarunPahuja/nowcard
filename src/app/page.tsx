@@ -296,7 +296,14 @@ export default function Landing() {
   const { isSignedIn, isLoaded } = useAuth();
 
   useEffect(() => {
-    if (isLoaded && isSignedIn) router.push('/dashboard');
+    if (isLoaded && isSignedIn) {
+      // Only redirect if they explicitly just initiated a sign-in from this session
+      const isSigningIn = typeof window !== 'undefined' && sessionStorage.getItem("nowcard_signing_in") === "true";
+      if (isSigningIn) {
+        sessionStorage.removeItem("nowcard_signing_in");
+        router.push('/dashboard');
+      }
+    }
   }, [isLoaded, isSignedIn, router]);
 
   return (

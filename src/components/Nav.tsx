@@ -46,7 +46,12 @@ const Nav = () => {
           </>
         ) : (
           <SignInButton mode="modal">
-            <Button variant="outline" size="sm" className="rounded-xl border-white/10 bg-white/5 hover:bg-white/10 text-white font-bold px-5">
+            <Button 
+                onClick={() => sessionStorage.setItem("nowcard_signing_in", "true")}
+                variant="outline" 
+                size="sm" 
+                className="rounded-xl border-white/10 bg-white/5 hover:bg-white/10 text-white font-bold px-5"
+            >
               Sign in
             </Button>
           </SignInButton>
