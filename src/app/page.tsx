@@ -5,7 +5,6 @@ import { useRouter } from "next/navigation";
 import Nav from "@/components/Nav";
 import { ArrowRight, Music, Layers, Briefcase, Zap } from "lucide-react";
 
-// 7 hardcoded cards with different people and songs
 const CARDS = [
   {
     layout: "default",
@@ -109,7 +108,7 @@ const CARDS = [
 
 function DefaultCard({ d }: { d: typeof CARDS[0] }) {
   return (
-    <svg width="380" height="200" xmlns="http://www.w3.org/2000/svg">
+    <svg width="340" height="180" viewBox="0 0 380 200" xmlns="http://www.w3.org/2000/svg" style={{ width: "100%", height: "auto" }}>
       <defs>
         <clipPath id="rectClipDefault">
           <rect x="292" y="16" width="72" height="72" rx="10" />
@@ -133,7 +132,7 @@ function DefaultCard({ d }: { d: typeof CARDS[0] }) {
 
 function SoftCard({ d }: { d: typeof CARDS[0] }) {
   return (
-    <svg width="380" height="160" xmlns="http://www.w3.org/2000/svg">
+    <svg width="340" height="135" viewBox="0 0 380 160" xmlns="http://www.w3.org/2000/svg" style={{ width: "100%", height: "auto" }}>
       <defs>
         <clipPath id="rectClipSoft">
           <rect x="14" y="35" width="90" height="90" rx="12" />
@@ -155,7 +154,7 @@ function SoftCard({ d }: { d: typeof CARDS[0] }) {
 
 function CompactCard({ d }: { d: typeof CARDS[0] }) {
   return (
-    <svg width="380" height="80" xmlns="http://www.w3.org/2000/svg">
+    <svg width="340" height="72" viewBox="0 0 380 80" xmlns="http://www.w3.org/2000/svg" style={{ width: "100%", height: "auto" }}>
       <defs>
         <clipPath id="rectClipCompact">
           <rect x="12" y="12" width="56" height="56" rx="8" />
@@ -177,7 +176,7 @@ function CompactCard({ d }: { d: typeof CARDS[0] }) {
 
 function HeroCard({ d }: { d: typeof CARDS[0] }) {
   return (
-    <svg width="380" height="240" xmlns="http://www.w3.org/2000/svg">
+    <svg width="340" height="204" viewBox="0 0 380 240" xmlns="http://www.w3.org/2000/svg" style={{ width: "100%", height: "auto" }}>
       <defs>
         <clipPath id="circleClipHero">
           <circle cx="190" cy="52" r="32" />
@@ -198,7 +197,7 @@ function HeroCard({ d }: { d: typeof CARDS[0] }) {
 
 function GridCard({ d }: { d: typeof CARDS[0] }) {
   return (
-    <svg width="380" height="200" xmlns="http://www.w3.org/2000/svg">
+    <svg width="340" height="179" viewBox="0 0 380 200" xmlns="http://www.w3.org/2000/svg" style={{ width: "100%", height: "auto" }}>
       <defs>
         <clipPath id="rectClipGrid">
           <rect x="22" y="24" width="32" height="32" rx="4" />
@@ -224,7 +223,7 @@ function GridCard({ d }: { d: typeof CARDS[0] }) {
 
 function MinimalCard({ d }: { d: typeof CARDS[0] }) {
   return (
-    <svg width="380" height="130" xmlns="http://www.w3.org/2000/svg">
+    <svg width="340" height="117" viewBox="0 0 380 130" xmlns="http://www.w3.org/2000/svg" style={{ width: "100%", height: "auto" }}>
       <defs>
         <clipPath id="rectClipMinimal">
           <rect x="20" y="40" width="40" height="40" rx="8" />
@@ -232,13 +231,10 @@ function MinimalCard({ d }: { d: typeof CARDS[0] }) {
       </defs>
       <rect width="380" height="130" rx="8" fill="#f8f8f8" stroke="#dddddd" strokeWidth="1" />
       <text x="20" y="28" fontFamily="Inter,sans-serif" fontSize="8" fill="#aaaaaa" letterSpacing="1">NOW PLAYING</text>
-
       <rect x="20" y="40" width="40" height="40" rx="8" fill="#eee" />
       <image href={d.albumUrl} x="20" y="40" width="40" height="40" clipPath="url(#rectClipMinimal)" preserveAspectRatio="xMidYMid slice" />
-
       <text x="70" y="55" fontFamily="Inter,sans-serif" fontSize="15" fontWeight="700" fill="#111111">{d.song}</text>
       <text x="70" y="72" fontFamily="Inter,sans-serif" fontSize="11" fill="#777">{d.artist}</text>
-
       <text x="20" y="100" fontFamily="Inter,sans-serif" fontSize="11" fill="#888888">Project: <tspan fill="#444444" fontWeight="500">{d.project}</tspan></text>
       <text x="20" y="116" fontFamily="Inter,sans-serif" fontSize="11" fill="#888888">Vibe: <tspan fill="#444444" fontWeight="500">{d.vibe}</tspan></text>
     </svg>
@@ -247,7 +243,7 @@ function MinimalCard({ d }: { d: typeof CARDS[0] }) {
 
 function GradientCard({ d }: { d: typeof CARDS[0] }) {
   return (
-    <svg width="380" height="180" xmlns="http://www.w3.org/2000/svg">
+    <svg width="340" height="161" viewBox="0 0 380 180" xmlns="http://www.w3.org/2000/svg" style={{ width: "100%", height: "auto" }}>
       <defs>
         <linearGradient id={`grad_${d.layout}`} x1="0%" y1="0%" x2="100%" y2="100%">
           <stop offset="0%" stopColor="#ec4899" />
@@ -261,13 +257,10 @@ function GradientCard({ d }: { d: typeof CARDS[0] }) {
       <rect width="380" height="180" rx="14" fill={`url(#grad_${d.layout})`} />
       <rect x="3" y="3" width="374" height="174" rx="12" fill="#ffffff" />
       <text x="190" y="32" textAnchor="middle" fontFamily="Inter,sans-serif" fontSize="8" fill="#999" letterSpacing="1">NOW PLAYING</text>
-
       <rect x="24" y="44" width="48" height="48" rx="8" fill="#f5f5f5" />
       <image href={d.albumUrl} x="24" y="44" width="48" height="48" clipPath="url(#rectClipGradient)" preserveAspectRatio="xMidYMid slice" />
-
       <text x="82" y="60" textAnchor="start" fontFamily="Inter,sans-serif" fontSize="16" fontWeight="700" fill="#111">{d.song}</text>
       <text x="82" y="78" textAnchor="start" fontFamily="Inter,sans-serif" fontSize="11" fill="#777">{d.artist}</text>
-
       <rect x="20" y="105" width="164" height="28" rx="14" fill="#f3f4f6" />
       <text x="102" y="123" textAnchor="middle" fontFamily="Inter,sans-serif" fontSize="10" fill="#333">P: {d.project.slice(0, 14)}</text>
       <rect x="196" y="105" width="164" height="28" rx="14" fill="#f3f4f6" />
@@ -278,18 +271,25 @@ function GradientCard({ d }: { d: typeof CARDS[0] }) {
   );
 }
 
-function CardPreview({ d }: { d: typeof CARDS[0] }) {
-  switch (d.layout) {
-    case "default": return <DefaultCard d={d} />;
-    case "soft": return <SoftCard d={d} />;
-    case "compact": return <CompactCard d={d} />;
-    case "hero": return <HeroCard d={d} />;
-    case "grid": return <GridCard d={d} />;
-    case "minimal": return <MinimalCard d={d} />;
-    case "gradient": return <GradientCard d={d} />;
-    default: return <DefaultCard d={d} />;
-  }
-}
+const CARD_COMPONENTS: Record<string, React.ComponentType<{ d: typeof CARDS[0] }>> = {
+  default: DefaultCard,
+  soft: SoftCard,
+  compact: CompactCard,
+  hero: HeroCard,
+  grid: GridCard,
+  minimal: MinimalCard,
+  gradient: GradientCard,
+};
+
+const CARD_META: Record<string, { tag: string }> = {
+  default: { tag: "Dark · All fields" },
+  soft: { tag: "Light · Clean" },
+  compact: { tag: "Minimal height" },
+  hero: { tag: "Centered · Bold" },
+  grid: { tag: "Modular · Dashboard" },
+  minimal: { tag: "Text only" },
+  gradient: { tag: "Colorful · Eye-catching" },
+};
 
 export default function Landing() {
   const router = useRouter();
@@ -297,11 +297,10 @@ export default function Landing() {
 
   useEffect(() => {
     if (isLoaded && isSignedIn) {
-      // Only redirect if they explicitly just initiated a sign-in from this session
-      const isSigningIn = typeof window !== 'undefined' && sessionStorage.getItem("nowcard_signing_in") === "true";
+      const isSigningIn = typeof window !== "undefined" && sessionStorage.getItem("nowcard_signing_in") === "true";
       if (isSigningIn) {
         sessionStorage.removeItem("nowcard_signing_in");
-        router.push('/dashboard');
+        router.push("/dashboard");
       }
     }
   }, [isLoaded, isSignedIn, router]);
@@ -310,7 +309,7 @@ export default function Landing() {
     <div className="min-h-screen bg-[#050505] text-white">
       <Nav />
 
-      {/* Hero — tight, no wasted space */}
+      {/* Hero */}
       <main className="pt-20 pb-12 px-6">
         <div className="max-w-4xl mx-auto text-center space-y-6">
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/5 border border-white/10 text-xs text-white/50 font-medium">
@@ -342,113 +341,47 @@ export default function Landing() {
         </div>
       </main>
 
-      {/* Card showcase — MAIN FEATURE, front and center */}
+      {/* Card showcase */}
       <section className="py-10 px-6">
-        <div className="max-w-7xl mx-auto">
-          <div className="flex items-center justify-between mb-8">
-            <h2 className="text-xl font-bold text-white">7 layouts. One identity.</h2>
-            <span className="text-xs text-white/30">Pick yours on the dashboard</span>
+        <div className="max-w-6xl mx-auto">
+
+          <div className="flex items-baseline justify-between mb-6">
+            <h2 className="text-sm font-semibold text-white/60 uppercase tracking-widest">7 layouts</h2>
+            <span className="text-xs text-white/20">Choose on dashboard</span>
           </div>
 
-          {/* Masonry-style layout showing all 7 cards */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+            {CARDS.map((card) => {
+              const CardComponent = CARD_COMPONENTS[card.layout];
+              const meta = CARD_META[card.layout];
+              return (
+                <div
+                  key={card.layout}
+                  className="group relative rounded-xl bg-[#0e0e0e] border border-[#1a1a1a] hover:border-[#2a2a2a] transition-all duration-200 p-4 flex flex-col gap-3 cursor-default"
+                >
+                  {/* Card preview */}
+                  <div className="w-full overflow-hidden rounded-lg">
+                    <CardComponent d={card} />
+                  </div>
 
-            {/* Default — full width on first row */}
-            <div className="lg:col-span-2 group">
-              <div className="p-4 rounded-2xl bg-[#0d0d0d] border border-white/5 hover:border-white/15 transition-all duration-300">
-                <div className="overflow-x-auto">
-                  <DefaultCard d={CARDS[0]} />
+                  {/* Label row */}
+                  <div className="flex items-center justify-between">
+                    <span className="text-[11px] font-semibold text-white/50 uppercase tracking-widest">
+                      {card.name}
+                    </span>
+                    <span className="text-[10px] text-white/20 tabular-nums">
+                      {meta.tag}
+                    </span>
+                  </div>
                 </div>
-                <div className="mt-3 flex items-center justify-between">
-                  <span className="text-xs font-medium text-white/40 uppercase tracking-wide">Default</span>
-                  <span className="text-xs text-white/20">Dark · Album art · All fields</span>
-                </div>
-              </div>
-            </div>
-
-            {/* Hero — tall card */}
-            <div className="group">
-              <div className="p-4 rounded-2xl bg-[#0d0d0d] border border-white/5 hover:border-white/15 transition-all duration-300">
-                <div className="overflow-x-auto">
-                  <HeroCard d={CARDS[3]} />
-                </div>
-                <div className="mt-3 flex items-center justify-between">
-                  <span className="text-xs font-medium text-white/40 uppercase tracking-wide">Hero</span>
-                  <span className="text-xs text-white/20">Centered · Bold</span>
-                </div>
-              </div>
-            </div>
-
-            {/* Soft */}
-            <div className="group">
-              <div className="p-4 rounded-2xl bg-[#0d0d0d] border border-white/5 hover:border-white/15 transition-all duration-300">
-                <div className="overflow-x-auto">
-                  <SoftCard d={CARDS[1]} />
-                </div>
-                <div className="mt-3 flex items-center justify-between">
-                  <span className="text-xs font-medium text-white/40 uppercase tracking-wide">Soft</span>
-                  <span className="text-xs text-white/20">Light · Clean</span>
-                </div>
-              </div>
-            </div>
-
-            {/* Grid — spans 2 cols */}
-            <div className="lg:col-span-2 group">
-              <div className="p-4 rounded-2xl bg-[#0d0d0d] border border-white/5 hover:border-white/15 transition-all duration-300">
-                <div className="overflow-x-auto">
-                  <GridCard d={CARDS[4]} />
-                </div>
-                <div className="mt-3 flex items-center justify-between">
-                  <span className="text-xs font-medium text-white/40 uppercase tracking-wide">Grid</span>
-                  <span className="text-xs text-white/20">Modular · Dashboard feel</span>
-                </div>
-              </div>
-            </div>
-
-            {/* Compact — full width */}
-            <div className="lg:col-span-3 group">
-              <div className="p-4 rounded-2xl bg-[#0d0d0d] border border-white/5 hover:border-white/15 transition-all duration-300">
-                <div className="overflow-x-auto">
-                  <CompactCard d={CARDS[2]} />
-                </div>
-                <div className="mt-3 flex items-center justify-between">
-                  <span className="text-xs font-medium text-white/40 uppercase tracking-wide">Compact</span>
-                  <span className="text-xs text-white/20">Minimal height · Best for tight READMEs</span>
-                </div>
-              </div>
-            </div>
-
-            {/* Minimal */}
-            <div className="group">
-              <div className="p-4 rounded-2xl bg-[#0d0d0d] border border-white/5 hover:border-white/15 transition-all duration-300">
-                <div className="overflow-x-auto">
-                  <MinimalCard d={CARDS[5]} />
-                </div>
-                <div className="mt-3 flex items-center justify-between">
-                  <span className="text-xs font-medium text-white/40 uppercase tracking-wide">Minimal</span>
-                  <span className="text-xs text-white/20">Text only · No image</span>
-                </div>
-              </div>
-            </div>
-
-            {/* Gradient — spans 2 cols */}
-            <div className="lg:col-span-2 group">
-              <div className="p-4 rounded-2xl bg-[#0d0d0d] border border-white/5 hover:border-white/15 transition-all duration-300">
-                <div className="overflow-x-auto">
-                  <GradientCard d={CARDS[6]} />
-                </div>
-                <div className="mt-3 flex items-center justify-between">
-                  <span className="text-xs font-medium text-white/40 uppercase tracking-wide">Gradient</span>
-                  <span className="text-xs text-white/20">Colorful · Eye-catching</span>
-                </div>
-              </div>
-            </div>
-
+              );
+            })}
           </div>
+
         </div>
       </section>
 
-      {/* Features strip — compact, no massive padding */}
+      {/* Features strip */}
       <section className="py-12 px-6 border-t border-white/5">
         <div className="max-w-6xl mx-auto grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
           {[
@@ -470,7 +403,7 @@ export default function Landing() {
         </div>
       </section>
 
-      {/* How it works — compact */}
+      {/* How it works */}
       <section className="py-12 px-6 border-t border-white/5">
         <div className="max-w-3xl mx-auto">
           <h2 className="text-xl font-bold text-white mb-8 text-center">How it works</h2>
