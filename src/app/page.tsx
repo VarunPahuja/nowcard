@@ -18,6 +18,7 @@ const CARDS = [
     project: "ml-portfolio-v2",
     vibe: "deep focus",
     albumBg: "#1a1a2e",
+    albumUrl: "https://picsum.photos/seed/allmirrors/120",
     dark: true,
   },
   {
@@ -31,6 +32,7 @@ const CARDS = [
     project: "design-system",
     vibe: "creative mode",
     albumBg: "#e8e8f0",
+    albumUrl: "https://picsum.photos/seed/motion/120",
     dark: false,
   },
   {
@@ -44,6 +46,7 @@ const CARDS = [
     project: "open-source-cli",
     vibe: "shipping fast",
     albumBg: "#f0f0f0",
+    albumUrl: "https://picsum.photos/seed/cigarette/120",
     dark: false,
   },
   {
@@ -57,6 +60,7 @@ const CARDS = [
     project: "react-hooks-lib",
     vibe: "locked in",
     albumBg: "#1a0a2e",
+    albumUrl: "https://picsum.photos/seed/stargazing/120",
     dark: true,
   },
   {
@@ -70,6 +74,7 @@ const CARDS = [
     project: "fintech-dashboard",
     vibe: "late night grind",
     albumBg: "#f0f0f0",
+    albumUrl: "https://picsum.photos/seed/apocalypse/120",
     dark: false,
   },
   {
@@ -83,6 +88,7 @@ const CARDS = [
     project: "portfolio-v3",
     vibe: "in the zone",
     albumBg: "#e8e8e8",
+    albumUrl: "https://picsum.photos/seed/whiteferrari/120",
     dark: false,
   },
   {
@@ -96,6 +102,7 @@ const CARDS = [
     project: "ai-side-project",
     vibe: "building in public",
     albumBg: "#f0e8f8",
+    albumUrl: "https://picsum.photos/seed/ivy/120",
     dark: false,
   },
 ];
@@ -103,10 +110,16 @@ const CARDS = [
 function DefaultCard({ d }: { d: typeof CARDS[0] }) {
   return (
     <svg width="380" height="200" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <clipPath id="rectClipDefault">
+          <rect x="292" y="16" width="72" height="72" rx="10" />
+        </clipPath>
+      </defs>
       <rect width="380" height="200" rx="14" fill="#111111" stroke="#222222" strokeWidth="1" />
       <circle cx="20" cy="28" r="4" fill="#22c55e" />
       <text x="30" y="33" fontFamily="Inter,sans-serif" fontSize="9" fill="#22c55e" letterSpacing="2">NOW PLAYING</text>
-      <rect x="292" y="16" width="72" height="72" rx="8" fill={d.albumBg} />
+      <rect x="292" y="16" width="72" height="72" rx="10" fill="#222" />
+      <image href={d.albumUrl} x="292" y="16" width="72" height="72" clipPath="url(#rectClipDefault)" preserveAspectRatio="xMidYMid slice" />
       <text x="20" y="68" fontFamily="Inter,sans-serif" fontSize="18" fontWeight="700" fill="#ffffff">{d.song}</text>
       <text x="20" y="88" fontFamily="Inter,sans-serif" fontSize="12" fill="#888888">{d.artist}</text>
       <line x1="20" y1="104" x2="280" y2="104" stroke="#222222" strokeWidth="1" />
@@ -121,9 +134,15 @@ function DefaultCard({ d }: { d: typeof CARDS[0] }) {
 function SoftCard({ d }: { d: typeof CARDS[0] }) {
   return (
     <svg width="380" height="160" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <clipPath id="rectClipSoft">
+          <rect x="14" y="35" width="90" height="90" rx="12" />
+        </clipPath>
+      </defs>
       <rect width="380" height="160" rx="16" fill="#fafafa" stroke="#e5e5e5" strokeWidth="1" />
-      <rect x="14" y="28" width="90" height="90" rx="10" fill={d.albumBg} />
       <text x="116" y="46" fontFamily="Inter,sans-serif" fontSize="8" fill="#999" letterSpacing="1.5">NOW PLAYING</text>
+      <rect x="14" y="35" width="90" height="90" rx="12" fill="#f0f0f0" />
+      <image href={d.albumUrl} x="14" y="35" width="90" height="90" clipPath="url(#rectClipSoft)" preserveAspectRatio="xMidYMid slice" />
       <text x="116" y="66" fontFamily="Inter,sans-serif" fontSize="16" fontWeight="700" fill="#111">{d.song}</text>
       <text x="116" y="84" fontFamily="Inter,sans-serif" fontSize="12" fill="#666">{d.artist}</text>
       <text x="116" y="104" fontFamily="Inter,sans-serif" fontSize="11" fill="#999">Project: <tspan fill="#333">{d.project}</tspan></text>
@@ -137,13 +156,19 @@ function SoftCard({ d }: { d: typeof CARDS[0] }) {
 function CompactCard({ d }: { d: typeof CARDS[0] }) {
   return (
     <svg width="380" height="80" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <clipPath id="rectClipCompact">
+          <rect x="12" y="12" width="56" height="56" rx="8" />
+        </clipPath>
+      </defs>
       <rect width="380" height="80" rx="10" fill="#ffffff" stroke="#e0e0e0" strokeWidth="1" />
-      <rect x="12" y="12" width="56" height="56" rx="6" fill={d.albumBg} />
+      <rect x="12" y="12" width="56" height="56" rx="8" fill="#f5f5f5" />
+      <image href={d.albumUrl} x="12" y="12" width="56" height="56" clipPath="url(#rectClipCompact)" preserveAspectRatio="xMidYMid slice" />
       <text x="78" y="28" fontFamily="Inter,sans-serif" fontSize="8" fill="#999">NOW PLAYING</text>
       <text x="78" y="46" fontFamily="Inter,sans-serif" fontSize="13" fontWeight="700" fill="#111">{d.song}</text>
       <text x="78" y="62" fontFamily="Inter,sans-serif" fontSize="11" fill="#777">{d.artist}</text>
-      <text x="240" y="38" fontFamily="Inter,sans-serif" fontSize="10" fill="#777">P: <tspan fill="#333">{d.project.slice(0, 14)}</tspan></text>
-      <text x="240" y="54" fontFamily="Inter,sans-serif" fontSize="10" fill="#777">V: <tspan fill="#333">{d.vibe}</tspan></text>
+      <text x="220" y="38" fontFamily="Inter,sans-serif" fontSize="10" fill="#777">P: <tspan fill="#333">{d.project.slice(0, 14)}</tspan></text>
+      <text x="220" y="54" fontFamily="Inter,sans-serif" fontSize="10" fill="#777">V: <tspan fill="#333">{d.vibe}</tspan></text>
       <circle cx="348" cy="40" r="3" fill="#22c55e" />
       <text x="356" y="44" fontFamily="Inter,sans-serif" fontSize="9" fontWeight="700" fill="#22c55e">OPEN</text>
     </svg>
@@ -153,8 +178,14 @@ function CompactCard({ d }: { d: typeof CARDS[0] }) {
 function HeroCard({ d }: { d: typeof CARDS[0] }) {
   return (
     <svg width="380" height="240" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <clipPath id="circleClipHero">
+          <circle cx="190" cy="52" r="32" />
+        </clipPath>
+      </defs>
       <rect width="380" height="240" rx="16" fill="#0d0d0d" />
-      <circle cx="190" cy="52" r="32" fill={d.albumBg} />
+      <circle cx="190" cy="52" r="32" fill="#222" />
+      <image href={d.albumUrl} x="158" y="20" width="64" height="64" clipPath="url(#circleClipHero)" preserveAspectRatio="xMidYMid slice" />
       <text x="190" y="106" textAnchor="middle" fontFamily="Inter,sans-serif" fontSize="20" fontWeight="700" fill="#ffffff">{d.song}</text>
       <text x="190" y="126" textAnchor="middle" fontFamily="Inter,sans-serif" fontSize="13" fill="#888888">{d.artist}</text>
       <text x="190" y="152" textAnchor="middle" fontFamily="Inter,sans-serif" fontSize="11" fill="#666">Project: <tspan fill="#aaa">{d.project}</tspan></text>
@@ -168,9 +199,15 @@ function HeroCard({ d }: { d: typeof CARDS[0] }) {
 function GridCard({ d }: { d: typeof CARDS[0] }) {
   return (
     <svg width="380" height="200" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <clipPath id="rectClipGrid">
+          <rect x="22" y="24" width="32" height="32" rx="4" />
+        </clipPath>
+      </defs>
       <rect width="380" height="200" rx="12" fill="#ffffff" stroke="#eeeeee" strokeWidth="1" />
       <rect x="10" y="10" width="176" height="86" rx="8" fill="#f9f9f9" stroke="#eee" strokeWidth="1" />
-      <rect x="22" y="24" width="32" height="32" rx="4" fill={d.albumBg} />
+      <rect x="22" y="24" width="32" height="32" rx="4" fill="#eee" />
+      <image href={d.albumUrl} x="22" y="24" width="32" height="32" clipPath="url(#rectClipGrid)" preserveAspectRatio="xMidYMid slice" />
       <text x="62" y="36" fontFamily="Inter,sans-serif" fontSize="12" fontWeight="700" fill="#111">{d.song.slice(0, 12)}</text>
       <text x="62" y="52" fontFamily="Inter,sans-serif" fontSize="10" fill="#777">{d.artist.slice(0, 14)}</text>
       <rect x="194" y="10" width="176" height="86" rx="8" fill="#f9f9f9" stroke="#eee" strokeWidth="1" />
@@ -188,13 +225,22 @@ function GridCard({ d }: { d: typeof CARDS[0] }) {
 function MinimalCard({ d }: { d: typeof CARDS[0] }) {
   return (
     <svg width="380" height="130" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <clipPath id="rectClipMinimal">
+          <rect x="20" y="40" width="40" height="40" rx="8" />
+        </clipPath>
+      </defs>
       <rect width="380" height="130" rx="8" fill="#f8f8f8" stroke="#dddddd" strokeWidth="1" />
       <text x="20" y="28" fontFamily="Inter,sans-serif" fontSize="8" fill="#aaaaaa" letterSpacing="1">NOW PLAYING</text>
-      <text x="20" y="50" fontFamily="Inter,sans-serif" fontSize="15" fontWeight="700" fill="#111111">{d.song}</text>
-      <text x="20" y="66" fontFamily="Inter,sans-serif" fontSize="11" fill="#777">{d.artist}</text>
-      <text x="20" y="86" fontFamily="Inter,sans-serif" fontSize="11" fill="#888888">Project: <tspan fill="#444444" fontWeight="500">{d.project}</tspan></text>
-      <text x="20" y="102" fontFamily="Inter,sans-serif" fontSize="11" fill="#888888">Vibe: <tspan fill="#444444" fontWeight="500">{d.vibe}</tspan></text>
-      <text x="20" y="118" fontFamily="Inter,sans-serif" fontSize="10" fontWeight="700" fill="#22c55e">OPEN TO WORK: YES</text>
+      
+      <rect x="20" y="40" width="40" height="40" rx="8" fill="#eee" />
+      <image href={d.albumUrl} x="20" y="40" width="40" height="40" clipPath="url(#rectClipMinimal)" preserveAspectRatio="xMidYMid slice" />
+      
+      <text x="70" y="55" fontFamily="Inter,sans-serif" fontSize="15" fontWeight="700" fill="#111111">{d.song}</text>
+      <text x="70" y="72" fontFamily="Inter,sans-serif" fontSize="11" fill="#777">{d.artist}</text>
+      
+      <text x="20" y="100" fontFamily="Inter,sans-serif" fontSize="11" fill="#888888">Project: <tspan fill="#444444" fontWeight="500">{d.project}</tspan></text>
+      <text x="20" y="116" fontFamily="Inter,sans-serif" fontSize="11" fill="#888888">Vibe: <tspan fill="#444444" fontWeight="500">{d.vibe}</tspan></text>
     </svg>
   );
 }
@@ -208,18 +254,26 @@ function GradientCard({ d }: { d: typeof CARDS[0] }) {
           <stop offset="50%" stopColor="#f97316" />
           <stop offset="100%" stopColor="#3b82f6" />
         </linearGradient>
+        <clipPath id="rectClipGradient">
+          <rect x="24" y="44" width="48" height="48" rx="8" />
+        </clipPath>
       </defs>
       <rect width="380" height="180" rx="14" fill={`url(#grad_${d.layout})`} />
       <rect x="3" y="3" width="374" height="174" rx="12" fill="#ffffff" />
       <text x="190" y="32" textAnchor="middle" fontFamily="Inter,sans-serif" fontSize="8" fill="#999" letterSpacing="1">NOW PLAYING</text>
-      <text x="190" y="56" textAnchor="middle" fontFamily="Inter,sans-serif" fontSize="17" fontWeight="700" fill="#111">{d.song}</text>
-      <text x="190" y="74" textAnchor="middle" fontFamily="Inter,sans-serif" fontSize="12" fill="#777">{d.artist}</text>
-      <rect x="20" y="90" width="164" height="28" rx="14" fill="#f3f4f6" />
-      <text x="102" y="108" textAnchor="middle" fontFamily="Inter,sans-serif" fontSize="10" fill="#333">P: {d.project.slice(0, 14)}</text>
-      <rect x="196" y="90" width="164" height="28" rx="14" fill="#f3f4f6" />
-      <text x="278" y="108" textAnchor="middle" fontFamily="Inter,sans-serif" fontSize="10" fill="#333">V: {d.vibe}</text>
-      <rect x="110" y="136" width="160" height="26" rx="13" fill="#dcfce7" />
-      <text x="190" y="153" textAnchor="middle" fontFamily="Inter,sans-serif" fontSize="9" fontWeight="700" fill="#166534">OPEN TO WORK: YES</text>
+      
+      <rect x="24" y="44" width="48" height="48" rx="8" fill="#f5f5f5" />
+      <image href={d.albumUrl} x="24" y="44" width="48" height="48" clipPath="url(#rectClipGradient)" preserveAspectRatio="xMidYMid slice" />
+      
+      <text x="82" y="60" textAnchor="start" fontFamily="Inter,sans-serif" fontSize="16" fontWeight="700" fill="#111">{d.song}</text>
+      <text x="82" y="78" textAnchor="start" fontFamily="Inter,sans-serif" fontSize="11" fill="#777">{d.artist}</text>
+      
+      <rect x="20" y="105" width="164" height="28" rx="14" fill="#f3f4f6" />
+      <text x="102" y="123" textAnchor="middle" fontFamily="Inter,sans-serif" fontSize="10" fill="#333">P: {d.project.slice(0, 14)}</text>
+      <rect x="196" y="105" width="164" height="28" rx="14" fill="#f3f4f6" />
+      <text x="278" y="123" textAnchor="middle" fontFamily="Inter,sans-serif" fontSize="10" fill="#333">V: {d.vibe}</text>
+      <rect x="110" y="142" width="160" height="24" rx="12" fill="#dcfce7" />
+      <text x="190" y="158" textAnchor="middle" fontFamily="Inter,sans-serif" fontSize="9" fontWeight="700" fill="#166534">OPEN TO WORK: YES</text>
     </svg>
   );
 }
