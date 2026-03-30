@@ -18,7 +18,7 @@ const CARDS = [
     project: "ml-portfolio-v2",
     vibe: "deep focus",
     albumBg: "#1a1a2e",
-    albumUrl: "https://picsum.photos/seed/allmirrors/120",
+    albumUrl: "https://upload.wikimedia.org/wikipedia/en/f/f1/Angel_Olsen_-_All_Mirrors.png",
     dark: true,
   },
   {
@@ -32,7 +32,7 @@ const CARDS = [
     project: "design-system",
     vibe: "creative mode",
     albumBg: "#e8e8f0",
-    albumUrl: "https://picsum.photos/seed/motion/120",
+    albumUrl: "https://upload.wikimedia.org/wikipedia/en/d/df/Phoebe_bridgers_motion_sickness.jpg",
     dark: false,
   },
   {
@@ -46,7 +46,7 @@ const CARDS = [
     project: "open-source-cli",
     vibe: "shipping fast",
     albumBg: "#f0f0f0",
-    albumUrl: "https://picsum.photos/seed/cigarette/120",
+    albumUrl: "https://upload.wikimedia.org/wikipedia/en/thumb/1/1e/Cage_the_Elephant_Melophobia.jpg/250px-Cage_the_Elephant_Melophobia.jpg",
     dark: false,
   },
   {
@@ -60,7 +60,7 @@ const CARDS = [
     project: "react-hooks-lib",
     vibe: "locked in",
     albumBg: "#1a0a2e",
-    albumUrl: "https://picsum.photos/seed/stargazing/120",
+    albumUrl: "https://upload.wikimedia.org/wikipedia/en/thumb/4/4b/Travis_Scott_-_Astroworld.png/250px-Travis_Scott_-_Astroworld.png",
     dark: true,
   },
   {
@@ -74,7 +74,7 @@ const CARDS = [
     project: "fintech-dashboard",
     vibe: "late night grind",
     albumBg: "#f0f0f0",
-    albumUrl: "https://picsum.photos/seed/apocalypse/120",
+    albumUrl: "https://upload.wikimedia.org/wikipedia/en/thumb/a/a7/Cigarettes_After_Sex_-_Apocalypse.png/250px-Cigarettes_After_Sex_-_Apocalypse.png",
     dark: false,
   },
   {
@@ -88,7 +88,7 @@ const CARDS = [
     project: "portfolio-v3",
     vibe: "in the zone",
     albumBg: "#e8e8e8",
-    albumUrl: "https://picsum.photos/seed/whiteferrari/120",
+    albumUrl: "https://upload.wikimedia.org/wikipedia/en/thumb/a/a0/Blonde_-_Frank_Ocean.jpeg/250px-Blonde_-_Frank_Ocean.jpeg",
     dark: false,
   },
   {
@@ -102,7 +102,7 @@ const CARDS = [
     project: "ai-side-project",
     vibe: "building in public",
     albumBg: "#f0e8f8",
-    albumUrl: "https://picsum.photos/seed/ivy/120",
+    albumUrl: "https://upload.wikimedia.org/wikipedia/en/thumb/a/a0/Blonde_-_Frank_Ocean.jpeg/250px-Blonde_-_Frank_Ocean.jpeg",
     dark: false,
   },
 ];
@@ -232,13 +232,13 @@ function MinimalCard({ d }: { d: typeof CARDS[0] }) {
       </defs>
       <rect width="380" height="130" rx="8" fill="#f8f8f8" stroke="#dddddd" strokeWidth="1" />
       <text x="20" y="28" fontFamily="Inter,sans-serif" fontSize="8" fill="#aaaaaa" letterSpacing="1">NOW PLAYING</text>
-      
+
       <rect x="20" y="40" width="40" height="40" rx="8" fill="#eee" />
       <image href={d.albumUrl} x="20" y="40" width="40" height="40" clipPath="url(#rectClipMinimal)" preserveAspectRatio="xMidYMid slice" />
-      
+
       <text x="70" y="55" fontFamily="Inter,sans-serif" fontSize="15" fontWeight="700" fill="#111111">{d.song}</text>
       <text x="70" y="72" fontFamily="Inter,sans-serif" fontSize="11" fill="#777">{d.artist}</text>
-      
+
       <text x="20" y="100" fontFamily="Inter,sans-serif" fontSize="11" fill="#888888">Project: <tspan fill="#444444" fontWeight="500">{d.project}</tspan></text>
       <text x="20" y="116" fontFamily="Inter,sans-serif" fontSize="11" fill="#888888">Vibe: <tspan fill="#444444" fontWeight="500">{d.vibe}</tspan></text>
     </svg>
@@ -261,13 +261,13 @@ function GradientCard({ d }: { d: typeof CARDS[0] }) {
       <rect width="380" height="180" rx="14" fill={`url(#grad_${d.layout})`} />
       <rect x="3" y="3" width="374" height="174" rx="12" fill="#ffffff" />
       <text x="190" y="32" textAnchor="middle" fontFamily="Inter,sans-serif" fontSize="8" fill="#999" letterSpacing="1">NOW PLAYING</text>
-      
+
       <rect x="24" y="44" width="48" height="48" rx="8" fill="#f5f5f5" />
       <image href={d.albumUrl} x="24" y="44" width="48" height="48" clipPath="url(#rectClipGradient)" preserveAspectRatio="xMidYMid slice" />
-      
+
       <text x="82" y="60" textAnchor="start" fontFamily="Inter,sans-serif" fontSize="16" fontWeight="700" fill="#111">{d.song}</text>
       <text x="82" y="78" textAnchor="start" fontFamily="Inter,sans-serif" fontSize="11" fill="#777">{d.artist}</text>
-      
+
       <rect x="20" y="105" width="164" height="28" rx="14" fill="#f3f4f6" />
       <text x="102" y="123" textAnchor="middle" fontFamily="Inter,sans-serif" fontSize="10" fill="#333">P: {d.project.slice(0, 14)}</text>
       <rect x="196" y="105" width="164" height="28" rx="14" fill="#f3f4f6" />
