@@ -4,7 +4,7 @@
 
 NowCard is a high-performance SVG generation engine that creates dynamic, real-time profile cards for your GitHub README. It showcases what you're building, your current "vibe", and what you're listening to across all music platforms — updated as you scrobble.
 
-![NowCard Preview](https://www.nowcard.store/api/card/user_2f9...)
+![NowCard](https://www.nowcard.store/api/card/user_3BNkHVkxLLtW8Gh1uBNXK8MvdkH?layout=minimal&accent=orange)
 
 ## ✨ Features
 
