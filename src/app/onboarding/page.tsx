@@ -187,17 +187,37 @@ export default function Onboarding() {
           </div>
 
           {/* Preview */}
-          {hasData && (
-            <div className="space-y-4 pt-4">
+          {(hasData || verifyState === "success") && (
+            <div className="space-y-6 pt-4">
               <h3 className="text-center text-sm font-medium text-muted-foreground tracking-widest uppercase">
                 Your Current Card
               </h3>
               <div className="rounded-2xl overflow-hidden border border-border bg-muted/20 p-2">
                 <img
-                  src={`https://www.nowcard.store/api/card/${user?.id}`}
+                  src={`https://www.nowcard.store/api/card/${lastfmUsername || (user?.unsafeMetadata as any)?.lastfmUsername}`}
                   alt="Current NowCard"
                   className="w-full rounded-xl"
                 />
+              </div>
+
+              <div className="bg-black/40 border border-white/10 rounded-xl p-5 space-y-4">
+                <div className="space-y-1.5">
+                  <p className="text-[11px] font-bold text-white/40 uppercase tracking-wider">Your card URL:</p>
+                  <a 
+                    href={`https://www.nowcard.store/api/card/${lastfmUsername || (user?.unsafeMetadata as any)?.lastfmUsername}`}
+                    target="_blank"
+                    className="text-sm text-blue-400 font-medium hover:underline break-all"
+                  >
+                    {`https://www.nowcard.store/api/card/${lastfmUsername || (user?.unsafeMetadata as any)?.lastfmUsername}`}
+                  </a>
+                </div>
+                
+                <div className="space-y-2">
+                  <p className="text-[11px] font-bold text-white/40 uppercase tracking-wider">GitHub README embed:</p>
+                  <code className="block bg-white/5 border border-white/10 rounded-lg p-3 text-xs text-green-400 font-mono break-all">
+                    {`![NowCard](https://www.nowcard.store/api/card/${lastfmUsername || (user?.unsafeMetadata as any)?.lastfmUsername})`}
+                  </code>
+                </div>
               </div>
             </div>
           )}

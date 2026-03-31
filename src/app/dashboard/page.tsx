@@ -51,6 +51,16 @@ export default function Dashboard() {
   const [editLastfm, setEditLastfm] = useState('');
   const [saving, setSaving] = useState(false);
   const [cardKey, setCardKey] = useState(0);
+  const [activeWidgets, setActiveWidgets] = useState<string[]>([]);
+
+  const toggleWidget = (widget: string) => {
+    setImgLoading(true);
+    setActiveWidgets(prev =>
+      prev.includes(widget)
+        ? prev.filter(w => w !== widget)
+        : [...prev, widget]
+    );
+  };
 
   useEffect(() => {
     if (authLoaded && !isSignedIn) router.push('/');
@@ -91,15 +101,19 @@ export default function Dashboard() {
   }, [showAlbumArt, showVibe, showProject, showOpenToWork]);
 
   const cardUrl = useMemo(() => {
-    if (!user?.id) return "";
-    const base = `https://www.nowcard.store/api/card/${user.id}`;
+    const meta = user?.unsafeMetadata as any;
+    const lastfmUsername = meta?.lastfmUsername;
+    if (!lastfmUsername) return "";
+
+    const base = `https://www.nowcard.store/api/card/${lastfmUsername}`;
     const params = new URLSearchParams();
     if (layout !== 'default') params.set('layout', layout);
     if (accent !== 'green') params.set('accent', accent);
     if (hiddenModules.length > 0) params.set('hide', hiddenModules.join(','));
+    if (activeWidgets.length > 0) params.set('widgets', activeWidgets.join(','));
     const query = params.toString();
     return query ? `${base}?${query}` : base;
-  }, [layout, accent, hiddenModules, user?.id, editOpenToWork]);
+  }, [layout, accent, hiddenModules, user?.id, activeWidgets]);
 
   const embedSnippet = `![NowCard](${cardUrl})`;
 
@@ -269,6 +283,31 @@ export default function Dashboard() {
                   <span className="text-sm text-white">Open to work badge</span>
                   <Switch checked={showOpenToWork} onCheckedChange={(val) => { setImgLoading(true); setShowOpenToWork(val); }} />
                 </div>
+              </div>
+            </div>
+
+            <div className="space-y-4">
+              <div className="flex items-center gap-2 mb-1">
+                <h3 className="text-xs font-bold text-gray-500 uppercase tracking-widest">Last.fm widgets</h3>
+                <span className="text-[10px] text-white/20 bg-white/5 px-2 py-0.5 rounded-full font-medium">OPTIONAL</span>
+              </div>
+              <div className="space-y-3">
+                {[
+                  { id: "scrobbles", label: "Scrobble count", desc: "♪ 12,453" },
+                  { id: "topartist", label: "Top artist this month", desc: "↑ Angel Olsen" },
+                  { id: "since", label: "Listening since", desc: "since 2019" },
+                ].map((widget) => (
+                  <div key={widget.id} className="flex items-center justify-between py-2">
+                    <div>
+                      <div className="text-sm text-white">{widget.label}</div>
+                      <div className="text-[11px] text-white/30">{widget.desc}</div>
+                    </div>
+                    <Switch
+                      checked={activeWidgets.includes(widget.id)}
+                      onCheckedChange={() => toggleWidget(widget.id)}
+                    />
+                  </div>
+                ))}
               </div>
             </div>
 
