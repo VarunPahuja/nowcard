@@ -1,3 +1,6 @@
+export const dynamic = 'force-dynamic';
+export const fetchCache = 'force-no-store';
+
 import { NextRequest, NextResponse } from "next/server";
 import { clerkClient } from "@clerk/nextjs/server";
 
@@ -31,7 +34,8 @@ async function findUserByLastfmUsername(lastfmUsername: string) {
 
 async function getNowPlaying(lastfmUsername: string): Promise<Song> {
   const res = await fetch(
-    `https://ws.audioscrobbler.com/2.0/?method=user.getrecenttracks&user=${lastfmUsername}&api_key=${LASTFM_API_KEY}&format=json&limit=1`
+    `https://ws.audioscrobbler.com/2.0/?method=user.getrecenttracks&user=${lastfmUsername}&api_key=${LASTFM_API_KEY}&format=json&limit=1`,
+    { cache: 'no-store' }
   );
   if (!res.ok)
     return { title: "Last.fm unavailable", artist: "", albumImage: null, isPlaying: false };
@@ -66,10 +70,12 @@ async function getLastfmStats(lastfmUsername: string): Promise<LastfmStats | nul
   try {
     const [userRes, topRes] = await Promise.all([
       fetch(
-        `https://ws.audioscrobbler.com/2.0/?method=user.getinfo&user=${lastfmUsername}&api_key=${LASTFM_API_KEY}&format=json`
+        `https://ws.audioscrobbler.com/2.0/?method=user.getinfo&user=${lastfmUsername}&api_key=${LASTFM_API_KEY}&format=json`,
+        { cache: 'no-store' }
       ),
       fetch(
-        `https://ws.audioscrobbler.com/2.0/?method=user.gettopartists&user=${lastfmUsername}&api_key=${LASTFM_API_KEY}&format=json&limit=1&period=1month`
+        `https://ws.audioscrobbler.com/2.0/?method=user.gettopartists&user=${lastfmUsername}&api_key=${LASTFM_API_KEY}&format=json&limit=1&period=1month`,
+        { cache: 'no-store' }
       ),
     ]);
     if (!userRes.ok || !topRes.ok) return null;
@@ -91,7 +97,7 @@ async function getLastfmStats(lastfmUsername: string): Promise<LastfmStats | nul
 
 async function imageToBase64(url: string): Promise<string> {
   try {
-    const res = await fetch(url);
+    const res = await fetch(url, { cache: 'no-store' });
     const buffer = await res.arrayBuffer();
     const base64 = Buffer.from(buffer).toString("base64");
     const mimeType = res.headers.get("content-type") || "image/jpeg";
@@ -151,7 +157,14 @@ export async function GET(
         <rect width="420" height="60" rx="12" fill="#1c1c1e"/>
         <text x="20" y="36" font-family="sans-serif" font-size="14" fill="#8e8e93">User not found: ${escapeXml(username)}</text>
       </svg>`,
-      { headers: { "Content-Type": "image/svg+xml", "Cache-Control": "no-cache" } }
+      {
+        headers: {
+          "Content-Type": "image/svg+xml",
+          "Cache-Control": "no-cache, no-store, must-revalidate, s-maxage=0",
+          "Pragma": "no-cache",
+          "Expires": "0",
+        },
+      }
     );
   }
 
@@ -535,7 +548,9 @@ export async function GET(
     status: 200,
     headers: {
       "Content-Type": "image/svg+xml",
-      "Cache-Control": "no-cache, no-store, must-revalidate",
+      "Cache-Control": "no-cache, no-store, must-revalidate, s-maxage=0",
+      "Pragma": "no-cache",
+      "Expires": "0",
     },
   });
 }
